@@ -1,6 +1,7 @@
 package com.fashionapp.Entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,6 +41,14 @@ public class UserDetails implements Serializable{
 	
 	@Column(name="description")
 	private String description;
+	
+	private String password;
+	
+	private String changepassword;
+	
+	@Column(name="creation_date")
+	private Date creationDate;
+	
 	
 	 public UserDetails() {
 		 
@@ -93,6 +102,36 @@ public class UserDetails implements Serializable{
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+
+	public String getPassword() {
+		return password;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+	public String getChangepassword() {
+		return changepassword;
+	}
+
+
+	public void setChangepassword(String changepassword) {
+		this.changepassword = changepassword;
+	}
+
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
 	}
 
 }
