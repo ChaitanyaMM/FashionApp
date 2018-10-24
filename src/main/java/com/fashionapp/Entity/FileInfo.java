@@ -14,12 +14,12 @@ public class FileInfo {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 	private String filename;
 	private String url;
 	private Date date;
 	
-	private Long user_id; //f.k
+	private Long userid; //f.k
 	
 	public FileInfo() {
 		
@@ -62,11 +62,11 @@ public class FileInfo {
 	}
 
 	public Long getUser_id() {
-		return user_id;
+		return userid;
 	}
 
 	public void setUser_id(Long user_id) {
-		this.user_id = user_id;
+		this.userid = user_id;
 	}
 
 }

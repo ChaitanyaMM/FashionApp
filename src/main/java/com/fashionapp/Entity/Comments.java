@@ -1,5 +1,6 @@
 package com.fashionapp.Entity;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,16 +14,20 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "comments")
-public class Comments {
+
+public class Comments implements Serializable{
+
+	
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(unique = true)
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	private long id;
 
-	private Long userId;
+	private long userId;
 
-	private Long videoId;
+	private long videoId;
 
 	private String comment;
 

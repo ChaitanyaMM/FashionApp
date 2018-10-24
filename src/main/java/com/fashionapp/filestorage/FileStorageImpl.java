@@ -1,5 +1,6 @@
 package com.fashionapp.filestorage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -29,6 +30,18 @@ public class FileStorageImpl implements FileStorage {
 			throw new RuntimeException("FAIL! -> message = " + e.getMessage());
 		}
 	}
+	
+	@Override
+	public void storemultiple(MultipartFile[] files) {
+		try {
+			for (MultipartFile file : files) {
+				Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException("FAIL! -> message = " + e.getMessage());
+		}
+	}
 
 	@Override
     public void deleteAll() {
@@ -36,7 +49,10 @@ public class FileStorageImpl implements FileStorage {
     }
 	@Override
 	public void init() {
+		File directory = new File(String.valueOf("filestorage"));
+		
 		try {
+			if(!directory.exists())
 			Files.createDirectory(rootLocation);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not initialize storage!");

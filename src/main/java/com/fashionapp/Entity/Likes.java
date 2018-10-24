@@ -1,34 +1,57 @@
 package com.fashionapp.Entity;
 
+import java.io.Serializable;
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "likes")
-public class Likes {
+public class Likes implements Serializable{
+ 
+	
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(unique = true)
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	private long id;
 
-	private Long userId;
+	private long userId;
 
-	private Long videoId;
+	private long videoId;
 
 	@Column(columnDefinition = "tinyint(1) default 0")
 	private boolean liked;
 
 	@Column(columnDefinition = "tinyint(1) default 0")
 	private boolean disLiked;
+	
+	@Column(name="time")
+	private Date date;
+	
+	@PrePersist
+	protected void onCreate() {
+		date = new Date();
+	}
 
 	public Likes() {
 	}
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
 	public Long getUserId() {
 		return userId;
 	}
@@ -59,6 +82,14 @@ public class Likes {
 
 	public void setDisLiked(boolean disLiked) {
 		this.disLiked = disLiked;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	/**

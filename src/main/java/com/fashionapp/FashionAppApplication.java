@@ -33,7 +33,7 @@ public class FashionAppApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		filestorage.deleteAll();
+		//filestorage.deleteAll();
 		filestorage.init();
 	}
 

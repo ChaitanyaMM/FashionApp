@@ -33,9 +33,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import com.fashionapp.Entity.Comments;
 import com.fashionapp.Entity.FileInfo;
+import com.fashionapp.Entity.Likes;
+import com.fashionapp.Entity.Share;
 import com.fashionapp.Entity.UserDetails;
+import com.fashionapp.Repository.CommentsRepository;
 import com.fashionapp.Repository.FileInfoRepository;
+import com.fashionapp.Repository.LikeRepository;
+import com.fashionapp.Repository.ShareRepository;
 import com.fashionapp.Repository.UserDetailsRepository;
 import com.fashionapp.filestorage.FileStorage;
 import com.fashionapp.util.PasswordEncryptDecryptor;
@@ -49,28 +55,30 @@ import io.swagger.annotations.ApiOperation;
 @Api(value="UserDetailsController")
 
 public class UserDetailsController {
+	
 	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-	
-	
 	@Autowired
 	private UserDetailsRepository userDetailsRepository;
 	
 	@Autowired
 	private FileInfoRepository fileInfoRepository;
 	
+	@Autowired 
+	private LikeRepository likeRepository;
+	
+	@Autowired
+	private CommentsRepository commentsRepository;
+	
+	@Autowired
+	private ShareRepository shareRepository;
+	
 	@Autowired
 	FileStorage fileStorage;
 	
-    @ApiOperation(value = "sampleService")
-	@RequestMapping(value = "/sample", method = RequestMethod.GET)
-	@ResponseBody
-	public String sample() {
+   
 
-		return "Sample!";
-	}
-	
-    @ApiOperation(value = "saving_userdetails",response = UserDetails.class)
+	@ApiOperation(value = "saving_userdetails", response = UserDetails.class)
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> Createsection(@RequestBody String data)
@@ -82,30 +90,29 @@ public class UserDetailsController {
 			e.printStackTrace();
 		}
 		Map<String, Object> map = new HashMap<String, Object>();
- 	    UserDetails userDetailsData = userDetailsRepository.save(userdetails);
+		UserDetails userDetailsData = userDetailsRepository.save(userdetails);
 		map.put("Data", userDetailsData);
 		map.put("message", "Successfull !.");
 		map.put("status", true);
 		return ResponseEntity.ok().body(map);
 	}
-    
-    @ApiOperation(value = "list_of_users",response = UserDetails.class)
+
+	@ApiOperation(value = "list_of_users", response = UserDetails.class)
 	@RequestMapping(value = "/getusers", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> getAll()
-			throws IOException, ParseException {
+	public ResponseEntity<Map<String, Object>> getAll() throws IOException, ParseException {
 		Map<String, Object> map = new HashMap<String, Object>();
- 	    Iterable<UserDetails> fecthed = userDetailsRepository.findAll();
+		Iterable<UserDetails> fecthed = userDetailsRepository.findAll();
 		map.put("Data", fecthed);
 		map.put("message", "Successfull !.");
 		map.put("status", true);
 		return ResponseEntity.ok().body(map);
 	}
-	
-    @ApiOperation(value = "updating userdetails",response = UserDetails.class)
+
+	@ApiOperation(value = "updating userdetails", response = UserDetails.class)
 	@RequestMapping(value = "/update-user", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> update(@RequestParam Long id,@RequestBody String data)
+	public ResponseEntity<Map<String, Object>> update(@RequestParam long id, @RequestBody String data)
 			throws IOException, ParseException {
 		UserDetails userdetails = null;
 		try {
@@ -115,68 +122,105 @@ public class UserDetailsController {
 		}
 		Map<String, Object> map = new HashMap<String, Object>();
 		userdetails.setId(id);
- 	    UserDetails fecthed = userDetailsRepository.save(userdetails);
+		UserDetails fecthed = userDetailsRepository.save(userdetails);
 		map.put("Data", fecthed);
 		map.put("message", "updated Successfully!.");
 		map.put("status", true);
 		return ResponseEntity.ok().body(map);
 	}
 
-    @ApiOperation(value = "retreieving by userid",response = UserDetails.class)
+	@ApiOperation(value = "retreieving by userid", response = UserDetails.class)
 	@RequestMapping(value = "/find-user-by-id", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> findUser(@RequestParam Long id)
-			throws IOException, ParseException {
+	public ResponseEntity<Map<String, Object>> findUser(@RequestParam long id) throws IOException, ParseException {
 		Map<String, Object> map = new HashMap<String, Object>();
- 	    Optional<UserDetails> fecthed = userDetailsRepository.findById(id);
+		Optional<UserDetails> fecthed = userDetailsRepository.findById(id);
 		map.put("Data", fecthed);
 		map.put("message", "fetched User Details!.");
 		map.put("status", true);
 		return ResponseEntity.ok().body(map);
 	}
-    
-    @ApiOperation(value = "delete-user",response = UserDetails.class)
+
+	@ApiOperation(value = "delete-user", response = UserDetails.class)
 	@RequestMapping(value = "/delete-user", method = RequestMethod.DELETE)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> delete(@RequestParam Long id)
-			throws IOException, ParseException {
-		
+	public ResponseEntity<Map<String, Object>> delete(@RequestParam long id) throws IOException, ParseException {
 		Map<String, Object> map = new HashMap<String, Object>();
-        userDetailsRepository.deleteById(id);
-		map.put("message", "user: "+id + "deleted");
+		userDetailsRepository.deleteById(id);
+		map.put("message", "user: " + id + "deleted");
 		map.put("status", true);
 		return ResponseEntity.ok().body(map);
 	}
-	
- 
-	@RequestMapping(value = "/upload", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
+
+	@RequestMapping(value = "/uploadvideo", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) throws IOException {
-		FileInfo fileInof = new FileInfo();
-		//UserDetails userdetails = null;
+	public ResponseEntity<Map<String, Object>> upload(@RequestParam("id") long id,
+			@RequestParam("file") MultipartFile file) throws IOException {
+		
+		FileInfo fileInfo = new FileInfo();
+		UserDetails userdetails = new UserDetails();
 		Date date = new Date(System.currentTimeMillis());
-		fileInof.setDate(date);
-		fileInof.setFilename(file.getOriginalFilename());
-		//userdetails.setId(id);
+		fileInfo.setDate(date);
+		fileInfo.setFilename(file.getOriginalFilename());
+		fileInfo.setUser_id(id);
+		userdetails.setId(id);
 		try {
 			fileStorage.store(file);
 			log.info("File uploaded successfully! -> filename = " + file.getOriginalFilename());
 		} catch (Exception e) {
 			log.info("Fail! -> uploaded filename: = " + file.getOriginalFilename());
 		}
-		Resource path =fileStorage.loadFile(file.getOriginalFilename());
-		System.out.println("PATH :="+path.toString());
-		fileInof.setUrl(path.toString());
-		FileInfo fileinserted =fileInfoRepository.save(fileInof);
+		Resource path = fileStorage.loadFile(file.getOriginalFilename());
+		System.out.println("PATH :=" + path.toString());
+		fileInfo.setUrl(path.toString());
+		FileInfo fileinserted = fileInfoRepository.save(fileInfo);
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("status",HttpStatus.OK);
+		map.put("status", HttpStatus.OK);
 		map.put("data", fileinserted);
 		return ResponseEntity.ok().body(map);
 
 	}
-	
-	
-	@RequestMapping(value = "/view-files", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/uploadmultiplevideos", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> uplodVideos(@RequestParam("id") long id,
+			@RequestParam("file") MultipartFile[] file) throws IOException {
+
+		FileInfo fileInfo = new FileInfo();
+		UserDetails userdetails = new UserDetails();
+		Date date = new Date(System.currentTimeMillis());
+		fileInfo.setDate(date);
+
+//		MultipartFile data;
+		for (MultipartFile files : file) {
+			//data = files;
+			System.out.println("files<><" + files.getOriginalFilename());
+			System.out.println("file!!><" + files);
+
+			fileInfo.setFilename(files.getOriginalFilename());
+
+			fileInfo.setUser_id(id);
+			userdetails.setId(id);
+			try {
+				fileStorage.storemultiple(file);
+				log.info("File uploaded successfully! -> filename = " + files.getOriginalFilename());
+			} catch (Exception e) {
+				log.info("Fail! -> uploaded filename: = " + files.getOriginalFilename());
+			}
+			Resource path = fileStorage.loadFile(files.getOriginalFilename());
+			System.out.println("PATH :=" + path.toString());
+			fileInfo.setUrl(path.toString());
+		}
+		FileInfo fileinserted = fileInfoRepository.save(fileInfo);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("status", HttpStatus.OK);
+		map.put("data", fileinserted);
+		return ResponseEntity.ok().body(map);
+
+	}
+
+	@RequestMapping(value = "/view-videos", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> fetchfiles() throws IOException {
 
@@ -187,8 +231,90 @@ public class UserDetailsController {
 		return ResponseEntity.ok().body(map);
 
 	}
+
+	@RequestMapping(value = "/view-videos-by-userId", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> fetchfilesuplodedbyUser(@RequestParam("id") long id) throws IOException {
+
+		List<FileInfo> files = (List<FileInfo>) fileInfoRepository.findByUserid(id);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("status", HttpStatus.OK);
+		map.put("data", files);
+		return ResponseEntity.ok().body(map);
+
+	}
+
+	
+	@ApiOperation(value = "like_file", response = Likes.class)
+	@RequestMapping(value = "/likes", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> fileLike(@RequestParam("userId") long userId,@RequestParam("fileId") long fileId,
+			@RequestBody String data) throws IOException, ParseException {
+		Likes likesObject = new Likes();
+
+		try {
+			likesObject = new ObjectMapper().readValue(data, Likes.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		likesObject.setUserId(userId);
+		likesObject.setVideoId(fileId);
+		Likes likesData = likeRepository.save(likesObject);
+		map.put("Data", likesData);
+		map.put("message", "Successfull !.");
+		map.put("status", true);
+		return ResponseEntity.ok().body(map);
+	}
+
+	@ApiOperation(value = "comments_on_file", response = Comments.class)
+	@RequestMapping(value = "/comment", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> fileComments(@RequestParam("userId") long userId,@RequestParam("fileId") long fileId,
+			@RequestBody String data) throws IOException, ParseException {
+		Comments comentsObject = new Comments();
+		
+		System.out.println("sample");
+
+		try {
+			comentsObject = new ObjectMapper().readValue(data, Comments.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+ 		Map<String, Object> map = new HashMap<String, Object>();
+		comentsObject.setUserId(userId);
+		comentsObject.setVideoId(fileId);
+		Comments likesData = commentsRepository.save(comentsObject);
+		map.put("Data", likesData);
+		map.put("message", "Successfull !.");
+		map.put("status", true);
+		return ResponseEntity.ok().body(map);
+	}
 	
 	
+	@ApiOperation(value = "share_file", response = Comments.class)
+	@RequestMapping(value = "/share", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> sharefile(@RequestParam("userId") long userId,@RequestParam("fileId") long fileId,
+			@RequestBody String data) throws IOException, ParseException {
+		Share shareObject = new Share();
+		
+		System.out.println("sample");
+
+		try {
+			shareObject = new ObjectMapper().readValue(data, Share.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+ 		Map<String, Object> map = new HashMap<String, Object>();
+ 		shareObject.setUserId(userId);
+ 		shareObject.setVideoId(fileId);
+		Share likesData = shareRepository.save(shareObject);
+		map.put("Data", likesData);
+		map.put("message", "Successfull !.");
+		map.put("status", true);
+		return ResponseEntity.ok().body(map);
+	}
 	
 	
 	
@@ -235,56 +361,7 @@ public class UserDetailsController {
 	*/
 	
 
-    @ApiOperation(value = "user-signup", response = UserDetails.class)
-	@RequestMapping(value = "/signup", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> usersignup(@RequestBody String data) throws Exception {
-		UserDetails userDetails = null;
-		try {
-			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Map<String, Object> map = new HashMap<String, Object>();
-		Date date = new Date(System.currentTimeMillis());
-		userDetails.setCreationDate(date);
-		userDetails.setPassword(PasswordEncryptDecryptor.encrypt(userDetails.getPassword()));
-		if (userDetails.getChangepassword() != null)
-			userDetails.setChangepassword(PasswordEncryptDecryptor.encrypt(userDetails.getChangepassword()));
-		UserDetails userData = userDetailsRepository.save(userDetails);
-		map.put("Data", userData);
-		map.put("message", "Successfull !.");
-		map.put("status", true);
-		return ResponseEntity.ok().body(map);
-	}
-
-	@ApiOperation(value = "user-forgotpwd", response = UserDetails.class)
-	@RequestMapping(value = "/forgotpwd", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> userforgotpwd(@RequestBody String data) throws Exception {
-		UserDetails userDetails = null;
-		try {
-			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		UserDetails userDetailsObj = userDetailsRepository.findByEmail(userDetails.getEmail());
-		Map<String, Object> map = new HashMap<String, Object>();
-		if (userDetailsObj != null) {
-			userDetailsObj.setPassword(PasswordEncryptDecryptor.encrypt(userDetails.getPassword()));
-			userDetailsObj.setChangepassword(PasswordEncryptDecryptor.encrypt(userDetails.getChangepassword()));
-			Date date = new Date(System.currentTimeMillis());
-			userDetailsObj.setCreationDate(date);
-			UserDetails userData = userDetailsRepository.save(userDetailsObj);
-			map.put("Data", userData);
-			map.put("message", "Successfull !.");
-			map.put("status", true);
-		} else {
-			map.put("message", "Invalid User");
-			map.put("status", false);
-		}
-		return ResponseEntity.ok().body(map);
-	}
+ 
 
 	@ApiOperation(value = "user-login", response = UserDetails.class)
 	@RequestMapping(value = "/login", method = RequestMethod.POST)

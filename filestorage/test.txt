@@ -1,0 +1,19 @@
+
+This is a sampe text file 
+This is for cheking out multiple filter using linux
+ok
+
+This is samp1
+This is samp1
+This is samp1
+This is samp2
+This is samp2
+This is samp2
+This is samp2
+This is samp3
+This is samp3
+This is samp4
+This is samp4
+
+
+

@@ -1,0 +1,22 @@
+uname -i  (to get the os bit size..)
+
+netstat (to get the running services )
+netstat -lpn |grep :9090 (to get exact port running with)
+
+kill  12456 (to kill the process)
+
+
+cat >sample.txt
+    >sample.txt
+touch sample.txt (to create new file)
+
+cat sample.txt |grep somestring (to search with particular string)
+
+grep -o 'This is samp1' test.txt > new.tx  (to filter by a string from one file and to write into new file)
+
+
+#!/bin/sh
+nohup java -jar /web/server.jar &   (to Run the process in the background!)
+
+  The & symbol, switches the program to run in the background.
+  The nohup utility makes the command passed as an argument run in the background even after you log out.
