@@ -19,6 +19,8 @@ public class FileInfo {
 	private String url;
 	private Date date;
 	
+	private Long user_id; //f.k
+	
 	public FileInfo() {
 		
 	}
@@ -57,6 +59,14 @@ public class FileInfo {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public Long getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(Long user_id) {
+		this.user_id = user_id;
 	}
 
 }

@@ -1,2 +1,0 @@
-ssh -i /home/chaitanya/chaitanya-workspace/awskeys/"linux-sunnylee465_kvpair.pem" ec2-user@ec2-13-59-186-135.us-east-2.compute.amazonaws.com
-

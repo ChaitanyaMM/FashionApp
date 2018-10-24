@@ -38,6 +38,7 @@ import com.fashionapp.Entity.UserDetails;
 import com.fashionapp.Repository.FileInfoRepository;
 import com.fashionapp.Repository.UserDetailsRepository;
 import com.fashionapp.filestorage.FileStorage;
+import com.fashionapp.util.PasswordEncryptDecryptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
@@ -51,7 +52,6 @@ public class UserDetailsController {
 	Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
 	
-	private static String UPLOADED_FOLDER="\\home\\chaitanya\\chaitanya-workspace\\workspace\\FashionApp\\src\\main\\resources";
 	
 	@Autowired
 	private UserDetailsRepository userDetailsRepository;
@@ -70,7 +70,7 @@ public class UserDetailsController {
 		return "Sample!";
 	}
 	
-    @ApiOperation(value = "saving userdetails",response = UserDetails.class)
+    @ApiOperation(value = "saving_userdetails",response = UserDetails.class)
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> Createsection(@RequestBody String data)
@@ -89,7 +89,7 @@ public class UserDetailsController {
 		return ResponseEntity.ok().body(map);
 	}
     
-    @ApiOperation(value = "list of users",response = UserDetails.class)
+    @ApiOperation(value = "list_of_users",response = UserDetails.class)
 	@RequestMapping(value = "/getusers", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> getAll()
@@ -148,102 +148,30 @@ public class UserDetailsController {
 		return ResponseEntity.ok().body(map);
 	}
 	
-	
-
-	
-    @ApiOperation(value = "user-signup",response = UserDetails.class)
-	@RequestMapping(value = "/signup", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> usersignup(@RequestBody String data)
-			throws IOException, ParseException {
-		UserDetails userDetails = null;
-		try {
-			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Map<String, Object> map = new HashMap<String, Object>();
-		Date date = new Date(System.currentTimeMillis());
-        userDetails.setCreationDate(date);
-		UserDetails userData = userDetailsRepository.save(userDetails);
-		map.put("Data", userData);
-		map.put("message", "Successfull !.");
-		map.put("status", true);
-		return ResponseEntity.ok().body(map);
-	}
-	
-	@RequestMapping(value = "/filesupload", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> uploadImage(@RequestParam("file") List<MultipartFile> files) {
-
-		System.out.println("Multiple images is calling to the folders<>");
-		Map<String, Object> map = new HashMap<String, Object>();
-		if (files.size() == 0) {
-			map.put("status", false);
-			map.put("data", null);
-			return ResponseEntity.ok().body(map);
-		}
-		
-		List<String> result = saveImagestoFolder(files);
-		map.put("status", true);
-		map.put("data", result);
-		return ResponseEntity.ok().body(map);
-	}
-
-	private List<String> saveImagestoFolder(List<MultipartFile> files) {
-		int count = 0;
-		List<String> list = new ArrayList<String>();
-		for (MultipartFile file : files) {
-			try {
-				byte[] bytes = file.getBytes();
-				String date = getTimeInMillis();
-				Path path = Paths.get(UPLOADED_FOLDER + date + ".*");
-				Files.write(path, bytes);
-				count++;
-				list.add("file"+ date + ".png");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		}
-		if (count == files.size()) {
-			return list;
-		} else {
-			return list;
-		}
-	}
-
-	private synchronized String getTimeInMillis() {
-		return String.valueOf(new Date().getTime());
-	}
-	
-	
-	
+ 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) throws IOException {
 		FileInfo fileInof = new FileInfo();
+		//UserDetails userdetails = null;
 		Date date = new Date(System.currentTimeMillis());
 		fileInof.setDate(date);
 		fileInof.setFilename(file.getOriginalFilename());
-		fileStorage.store(file);
+		//userdetails.setId(id);
+		try {
+			fileStorage.store(file);
+			log.info("File uploaded successfully! -> filename = " + file.getOriginalFilename());
+		} catch (Exception e) {
+			log.info("Fail! -> uploaded filename: = " + file.getOriginalFilename());
+		}
 		Resource path =fileStorage.loadFile(file.getOriginalFilename());
-		System.out.println("PATH<><<.."+path.toString());
+		System.out.println("PATH :="+path.toString());
 		fileInof.setUrl(path.toString());
 		FileInfo fileinserted =fileInfoRepository.save(fileInof);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("status",HttpStatus.OK);
 		map.put("data", fileinserted);
 		return ResponseEntity.ok().body(map);
-	
-//		try {
-//			fileStorage.store(file);
-//			log.info("File uploaded successfully! -> filename = " + file.getOriginalFilename());
-//		} catch (Exception e) {
-//			log.info("Fail! -> uploaded filename: = " + file.getOriginalFilename());
-//
-//		}
-//		return null;
 
 	}
 	
@@ -300,6 +228,97 @@ public class UserDetailsController {
 	
 	
 	
+	
+	
+  /*
+    author :Divya sai
+	*/
+	
+
+    @ApiOperation(value = "user-signup", response = UserDetails.class)
+	@RequestMapping(value = "/signup", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> usersignup(@RequestBody String data) throws Exception {
+		UserDetails userDetails = null;
+		try {
+			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		Date date = new Date(System.currentTimeMillis());
+		userDetails.setCreationDate(date);
+		userDetails.setPassword(PasswordEncryptDecryptor.encrypt(userDetails.getPassword()));
+		if (userDetails.getChangepassword() != null)
+			userDetails.setChangepassword(PasswordEncryptDecryptor.encrypt(userDetails.getChangepassword()));
+		UserDetails userData = userDetailsRepository.save(userDetails);
+		map.put("Data", userData);
+		map.put("message", "Successfull !.");
+		map.put("status", true);
+		return ResponseEntity.ok().body(map);
+	}
+
+	@ApiOperation(value = "user-forgotpwd", response = UserDetails.class)
+	@RequestMapping(value = "/forgotpwd", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> userforgotpwd(@RequestBody String data) throws Exception {
+		UserDetails userDetails = null;
+		try {
+			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		UserDetails userDetailsObj = userDetailsRepository.findByEmail(userDetails.getEmail());
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (userDetailsObj != null) {
+			userDetailsObj.setPassword(PasswordEncryptDecryptor.encrypt(userDetails.getPassword()));
+			userDetailsObj.setChangepassword(PasswordEncryptDecryptor.encrypt(userDetails.getChangepassword()));
+			Date date = new Date(System.currentTimeMillis());
+			userDetailsObj.setCreationDate(date);
+			UserDetails userData = userDetailsRepository.save(userDetailsObj);
+			map.put("Data", userData);
+			map.put("message", "Successfull !.");
+			map.put("status", true);
+		} else {
+			map.put("message", "Invalid User");
+			map.put("status", false);
+		}
+		return ResponseEntity.ok().body(map);
+	}
+
+	@ApiOperation(value = "user-login", response = UserDetails.class)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> userlogin(@RequestBody String data)
+			throws Exception {
+		
+		UserDetails userDetails = null;
+		try {
+			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		UserDetails userDetailsObj = userDetailsRepository.findByEmail(userDetails.getEmail());
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (userDetailsObj != null) {
+
+			String pwd = PasswordEncryptDecryptor.encrypt(userDetails.getPassword());
+
+			if (pwd.equalsIgnoreCase(userDetailsObj.getPassword())) {
+				map.put("message", "Login Successfull !.");
+				map.put("status", true);
+			} else {
+				map.put("message", "Invalid Password !.");
+				map.put("status", false);
+			}
+
+		} else {
+			map.put("message", "Invalid User");
+			map.put("status", false);
+		}
+		return ResponseEntity.ok().body(map);
+	}
 	
 	
 	
