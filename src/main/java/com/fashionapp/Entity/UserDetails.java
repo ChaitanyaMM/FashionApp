@@ -5,9 +5,12 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -33,16 +36,23 @@ public class UserDetails implements Serializable{
 	@Column(name="nick_name")
 	private String nickName;
 	
-	@Column(name="phone_no")
 	private String phoneno;
 	
-	@Column(name="email")
 	private String email;
 	
-	@Column(name="description")
 	private String description;
 	
 	private String password;
+	
+	@Enumerated(EnumType.ORDINAL)
+	private Gender gender;
+	
+	@Lob
+	@Column(name="profileImage")
+	private byte[] image;
+	
+	/*@Column(name="image_path")
+	private String imagepath;*/
 	
 	
     @Column(name="creation_date")
@@ -58,47 +68,73 @@ public class UserDetails implements Serializable{
 	 public UserDetails() {
 		 
 	 }
-	
-	 
-	public Long getId() {
+
+
+	public long getId() {
 		return id;
 	}
-	public void setId(Long id) {
+
+
+	public void setId(long id) {
 		this.id = id;
 	}
+
+
 	public String getFirstName() {
 		return firstName;
 	}
+
+
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
+
+
 	public String getLastName() {
 		return lastName;
 	}
+
+
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+
+
 	public String getNickName() {
 		return nickName;
 	}
+
+
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
+
+
 	public String getPhoneno() {
 		return phoneno;
 	}
+
+
 	public void setPhoneno(String phoneno) {
 		this.phoneno = phoneno;
 	}
+
+
 	public String getEmail() {
 		return email;
 	}
+
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+
 	public String getDescription() {
 		return description;
 	}
+
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -113,6 +149,27 @@ public class UserDetails implements Serializable{
 		this.password = password;
 	}
 
+
+	public Gender getGender() {
+		return gender;
+	}
+
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
+
+	public byte[] getImage() {
+		return image;
+	}
+
+
+	public void setImage(byte[] image) {
+		this.image = image;
+	}
+
+
 	public Date getCreationDate() {
 		return creationDate;
 	}
@@ -121,5 +178,18 @@ public class UserDetails implements Serializable{
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
 	}
+
+
+	/*public String getImagepath() {
+		return imagepath;
+	}
+
+
+	public void setImagepath(String imagepath) {
+		this.imagepath = imagepath;
+	}*/
+	
+	 
+	
 
 }

@@ -45,6 +45,7 @@ import com.fashionapp.Repository.ShareRepository;
 import com.fashionapp.Repository.UserDetailsRepository;
 import com.fashionapp.filestorage.FileStorage;
 import com.fashionapp.util.PasswordEncryptDecryptor;
+import com.fashionapp.util.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
@@ -156,7 +157,8 @@ public class UserDetailsController {
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> upload(@RequestParam("id") long id,
 			@RequestParam("file") MultipartFile file) throws IOException {
-		
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		FileInfo fileInfo = new FileInfo();
 		UserDetails userdetails = new UserDetails();
 		Date date = new Date(System.currentTimeMillis());
@@ -174,10 +176,8 @@ public class UserDetailsController {
 		System.out.println("PATH :=" + path.toString());
 		fileInfo.setUrl(path.toString());
 		FileInfo fileinserted = fileInfoRepository.save(fileInfo);
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("status", HttpStatus.OK);
-		map.put("data", fileinserted);
-		return ResponseEntity.ok().body(map);
+		response = server.getSuccessResponse("Uploded Successfully", fileinserted);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
@@ -223,24 +223,22 @@ public class UserDetailsController {
 	@RequestMapping(value = "/view-videos", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> fetchfiles() throws IOException {
-
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		List<FileInfo> files = (List<FileInfo>) fileInfoRepository.findAll();
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("status", HttpStatus.OK);
-		map.put("data", files);
-		return ResponseEntity.ok().body(map);
+		response = server.getSuccessResponse("fetched", files);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
 	@RequestMapping(value = "/view-videos-by-userId", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> fetchfilesuplodedbyUser(@RequestParam("id") long id) throws IOException {
-
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		List<FileInfo> files = (List<FileInfo>) fileInfoRepository.findByUserid(id);
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("status", HttpStatus.OK);
-		map.put("data", files);
-		return ResponseEntity.ok().body(map);
+		response = server.getSuccessResponse("fetched", files);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
@@ -251,45 +249,44 @@ public class UserDetailsController {
 	public ResponseEntity<Map<String, Object>> fileLike(@RequestParam("userId") long userId,@RequestParam("fileId") long fileId,
 			@RequestBody String data) throws IOException, ParseException {
 		Likes likesObject = new Likes();
-
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			likesObject = new ObjectMapper().readValue(data, Likes.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Map<String, Object> map = new HashMap<String, Object>();
 		likesObject.setUserId(userId);
 		likesObject.setVideoId(fileId);
 		Likes likesData = likeRepository.save(likesObject);
-		map.put("Data", likesData);
-		map.put("message", "Successfull !.");
-		map.put("status", true);
-		return ResponseEntity.ok().body(map);
+		response = server.getSuccessResponse("liked", likesData);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "comments_on_file", response = Comments.class)
+	@ApiOperation(value = "comment", response = Comments.class)
 	@RequestMapping(value = "/comment", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> fileComments(@RequestParam("userId") long userId,@RequestParam("fileId") long fileId,
 			@RequestBody String data) throws IOException, ParseException {
 		Comments comentsObject = new Comments();
-		
-		System.out.println("sample");
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 
 		try {
 			comentsObject = new ObjectMapper().readValue(data, Comments.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
- 		Map<String, Object> map = new HashMap<String, Object>();
 		comentsObject.setUserId(userId);
 		comentsObject.setVideoId(fileId);
-		Comments likesData = commentsRepository.save(comentsObject);
-		map.put("Data", likesData);
-		map.put("message", "Successfull !.");
-		map.put("status", true);
-		return ResponseEntity.ok().body(map);
+		Comments commentsData = commentsRepository.save(comentsObject);
+		response = server.getSuccessResponse("commented", commentsData);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
+	
+	
+	
+	
 	
 	
 	@ApiOperation(value = "share_file", response = Comments.class)
@@ -317,50 +314,69 @@ public class UserDetailsController {
 	}
 	
 	
-	
-	
-	/*@RequestMapping(value = "/view-files", method = RequestMethod.GET)
+	@RequestMapping(value="/follow",method =RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> fetchfiles() throws IOException {
-		
-		List<FileInfo> fileInfos = fileStorage.loadFiles().map(
-				path ->	{
-					String filename = path.getFileName().toString();
-					String url = MvcUriComponentsBuilder.fromMethodName(UserDetailsController.class,
-	                        "downloadFile", path.getFileName().toString()).build().toString();
-					return new FileInfo(filename, url); 
-				} 
-			)
-			.collect(Collectors.toList());
-	
+	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("userId") long userId) {
+		Optional<UserDetails> userData = userDetailsRepository.findById(userId);
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("status",HttpStatus.OK);
-		map.put("data", fileInfos);
+		map.put("Data", userData);
+		map.put("message", "Successfull !.");
+		map.put("status", true);
 		return ResponseEntity.ok().body(map);
-		
-		
 	}
 	
-     * Download Files
-     
-	@GetMapping("/files/{filename}")
-	public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
-		Resource file = fileStorage.loadFile(filename);
-		return ResponseEntity.ok()
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-					.body(file);	
-	}*/
+	
+	@RequestMapping(value="/unfollow",method =RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> unfollowUser(@RequestParam("userId") long userId) {
+		Optional<UserDetails> userData = userDetailsRepository.findById(userId);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Data", userData);
+		map.put("message", "Successfull !.");
+		map.put("status", true);
+		return ResponseEntity.ok().body(map);
+	}
 	
 	
-	
-	
-	
-	
-  /*
-    author :Divya sai
-	*/
-	
+	@ApiOperation(value = "user-signup", response = UserDetails.class)
+	@RequestMapping(value = "/signup", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> usersignup(@RequestParam("data") String data,
+			@RequestParam("file") MultipartFile profileImage) throws Exception {
 
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		UserDetails userDetails = null;
+		try {
+			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		/*
+		 * try { fileStorage.store(profileImage);
+		 * log.info("File uploaded successfully! -> filename = " +
+		 * profileImage.getOriginalFilename()); } catch (Exception e) {
+		 * log.info("Fail! -> uploaded filename: = " +
+		 * profileImage.getOriginalFilename()); } Resource path =
+		 * fileStorage.loadFile(profileImage.getOriginalFilename());
+		 * System.out.println("PATH :=" + path.toString());
+		 * userDetails.setImagepath(path.toString());
+		 */
+
+		UserDetails isemailExists = userDetailsRepository.findByEmail(userDetails.getEmail());
+		if (isemailExists != null) {
+			log.info("Email Id already exists, please choose another email id");
+			response = server.getDuplicateResponse("Email Id already exists, please choose another email id", null);
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CONFLICT);
+		}
+
+		byte[] image = profileImage.getBytes();
+		userDetails.setImage(image);
+		UserDetails userData = userDetailsRepository.save(userDetails);
+		response = server.getSuccessResponse("SignUp Successful", userData);
+
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+	}
  
 
 	@ApiOperation(value = "user-login", response = UserDetails.class)

@@ -14,7 +14,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "likes")
+@Table(name = "shares")
 public class Share implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -26,7 +26,7 @@ public class Share implements Serializable{
 	private long userId;
 	private long videoId;
 	
-	@Column(name = "sahred_time", nullable = false)
+	@Column(name = "shared_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date shared_time;
 
