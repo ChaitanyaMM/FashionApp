@@ -8,8 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "following_group")
-public class UserGroup {
+@Table(name = "followers_group")
+public class FollowersGroup {
 	
 	@Id
 	@Column(unique = true)

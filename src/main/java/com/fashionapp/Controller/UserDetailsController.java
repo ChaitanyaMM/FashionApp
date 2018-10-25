@@ -2,44 +2,35 @@ package com.fashionapp.Controller;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-
 import com.fashionapp.Entity.Comments;
 import com.fashionapp.Entity.FileInfo;
+import com.fashionapp.Entity.FollowersGroup;
+import com.fashionapp.Entity.FollowingGroup;
 import com.fashionapp.Entity.Likes;
 import com.fashionapp.Entity.Share;
 import com.fashionapp.Entity.UserDetails;
 import com.fashionapp.Repository.CommentsRepository;
 import com.fashionapp.Repository.FileInfoRepository;
+import com.fashionapp.Repository.FollowersGroupRepository;
+import com.fashionapp.Repository.FollowingGroupRepository;
 import com.fashionapp.Repository.LikeRepository;
 import com.fashionapp.Repository.ShareRepository;
 import com.fashionapp.Repository.UserDetailsRepository;
@@ -47,7 +38,6 @@ import com.fashionapp.filestorage.FileStorage;
 import com.fashionapp.util.PasswordEncryptDecryptor;
 import com.fashionapp.util.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -76,6 +66,12 @@ public class UserDetailsController {
 	
 	@Autowired
 	FileStorage fileStorage;
+	
+	@Autowired
+    private FollowingGroupRepository followingGroupRepository;
+	
+	@Autowired
+	private FollowersGroupRepository followersGroupRepository;
 	
    
 
@@ -314,6 +310,8 @@ public class UserDetailsController {
 	}
 	
 	
+	
+	
 	@RequestMapping(value="/follow",method =RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("userId") long userId) {
@@ -335,6 +333,44 @@ public class UserDetailsController {
 		map.put("message", "Successfull !.");
 		map.put("status", true);
 		return ResponseEntity.ok().body(map);
+	}
+	
+	
+	public String addtofollowinggroup() {
+		  log.info("to follow user");
+		
+		
+		return null;
+		
+		
+	}
+
+	public ResponseEntity<Map<String, Object>> DefaultfollowingGroup(long userId,String email){
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		FollowingGroup groupData  = new FollowingGroup();
+        groupData.setUserId(userId);
+        groupData.setUseremail(email);
+        groupData.setGroupname("following");
+        groupData.setDefault(true);
+        FollowingGroup usergroup =followingGroupRepository.save(groupData);
+		log.info(" default followingGroup created");
+		response=server.getSuccessResponse("default-group-created", usergroup);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<Map<String, Object>> DefaultfollowersGroup(long userId,String email){
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		FollowersGroup groupData  = new FollowersGroup();
+        groupData.setUserId(userId);
+        groupData.setUseremail(email);
+        groupData.setGroupname("followers");
+        groupData.setDefault(true);
+        FollowersGroup usergroup =followersGroupRepository.save(groupData);
+		log.info(" default followersGroup created");
+		response=server.getSuccessResponse("default-group-created", usergroup);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
 	
@@ -373,8 +409,10 @@ public class UserDetailsController {
 		byte[] image = profileImage.getBytes();
 		userDetails.setImage(image);
 		UserDetails userData = userDetailsRepository.save(userDetails);
+		System.out.println("creating default group");
+		DefaultfollowingGroup(userDetails.getId(), userDetails.getEmail());
+		DefaultfollowersGroup(userDetails.getId(), userDetails.getEmail());
 		response = server.getSuccessResponse("SignUp Successful", userData);
-
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
  
