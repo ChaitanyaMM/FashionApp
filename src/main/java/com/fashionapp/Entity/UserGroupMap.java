@@ -10,13 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="usergroup_map")
-public class UserGroupMap implements Serializable{
-	
-	
-	
-	/*TO-DO 
-	 follow/unfollow is mappedto group and save to group;
-	 if unmapped unammpe from group and delte from group;*/
+public class UserGroupMap implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
