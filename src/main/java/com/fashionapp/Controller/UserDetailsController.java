@@ -374,15 +374,22 @@ public class UserDetailsController {
 
 	@RequestMapping(value = "/follow", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("id") long id) {
+	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("id") long id,@RequestParam("followingId") long followingId) {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		Optional<FollowingGroup> userData = followingGroupRepository.findById(id);
+		Optional<FollowingGroup> userData = followingGroupRepository.findByUserId(id);
+		
+		System.out.println("groupID := "+userData.get().getId());
+		System.out.println("userEmail:= "+userData.get().getUseremail());
+		
+		Optional<FollowingGroup> followingUserData = followingGroupRepository.findByUserId(followingId);
 
-		System.out.println("userGroup..." + userData.get().getUserId());
-		System.out.println("userEmail..." + userData.get().getUseremail());
+		System.out.println("followingUserData: groupID := "+followingUserData.get().getId());
 
-		addUsertoUsergroup(id, userData.get().getUserId(), userData.get().getUseremail());
+		System.out.println("followingUserData: userEmail:="+followingUserData.get().getUseremail());
+		
+       
+		mapUsertoUsergroup(followingId,userData.get().getId(), userData.get().getUseremail());
 		log.info("following a user");
 		response = server.getSuccessResponse("following-user", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
@@ -390,15 +397,29 @@ public class UserDetailsController {
 
 	@RequestMapping(value = "/unfollow", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> unfollowUser(@RequestParam("userId") long userId) {
-		Optional<UserInfo> userData = userDetailsRepository.findById(userId);
+
+	public ResponseEntity<Map<String, Object>> unfollowUser(@RequestParam("id") long id,@RequestParam("followingId") long followingId) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		ServerResponse<Object> server = new ServerResponse<Object>();
-		response = server.getSuccessResponse("unfollowed-Successfull", userData.get().getNickName());
+	   
+		Optional<FollowingGroup> userData = followingGroupRepository.findByUserId(id);
+		
+		System.out.println("groupID := "+userData.get().getId());
+		System.out.println("userEmail:= "+userData.get().getUseremail());
+		
+		Optional<FollowingGroup> followingUserData = followingGroupRepository.findByUserId(followingId);
+
+		System.out.println("followingUserData: groupID := "+followingUserData.get().getId());
+
+		System.out.println("followingUserData: userEmail:="+followingUserData.get().getUseremail());
+		
+		unmapuserfromUsergroup(followingId,userData.get().getId(), userData.get().getUseremail());
+		response = server.getSuccessResponse("unfollowed-Successfull", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
+	
 
-	public ResponseEntity<Map<String, Object>> addUsertoUsergroup(long userId, long groupId, String email) {
+	public ResponseEntity<Map<String, Object>> mapUsertoUsergroup(long userId, long groupId, String email) {
 		log.info("to follow user");
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -406,27 +427,20 @@ public class UserDetailsController {
 		UserGroupMap userGroupMap = new UserGroupMap();
 		userGroupMap.setGroupId(groupId);
 		userGroupMap.setUserId(userId);
-		// userGroupMap.setUseremail(useremail);
-		// userGroupMap.setPhoneno(phoneno);
-		// userGroupMap.setUsername(username);
+		userGroupMap.setUseremail(email);
+//	    userGroupMap.setPhoneno(phoneno);
+//		userGroupMap.setUsername(username);
 		userGroupMap.setMapped(true);
 
 		UserGroupMap usermappedData = userGroupMapRepository.save(userGroupMap);
 		log.info("following a user");
-		response = server.getSuccessResponse("user-added-to-group", usermappedData);
-		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+		response = server.getSuccessResponse("user-mapped-to-group", usermappedData);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
-	public ResponseEntity<Map<String, Object>> unmapuserfromUsergroup(long userId) {
-
-		/*
-		 * TO:DO
-		 * 
-		 * step:1 find out user from any group by id step:2 get the groupmap id from
-		 * userid and delete it from group table
-		 */
-
+	public ResponseEntity<Map<String, Object>> unmapuserfromUsergroup(long userId,long groupId, String email) {
+		
 		UserGroupMap unmapuserData = userGroupMapRepository.findByUserId(userId);
 
 		userGroupMapRepository.deleteById(unmapuserData.getId());
