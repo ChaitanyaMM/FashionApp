@@ -19,7 +19,7 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name="user_details")
 
-public class UserDetails implements Serializable{
+public class UserInfo implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,9 +54,11 @@ public class UserDetails implements Serializable{
 	/*@Column(name="image_path")
 	private String imagepath;*/
 	
-	
     @Column(name="creation_date")
 	private Date creationDate;
+    
+    @Column(name = "role")
+	private String role;
    
 
 	@PrePersist
@@ -65,7 +67,7 @@ public class UserDetails implements Serializable{
 	}
 	
 	
-	 public UserDetails() {
+	 public UserInfo() {
 		 
 	 }
 
@@ -177,6 +179,16 @@ public class UserDetails implements Serializable{
 
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
+	}
+
+
+	public String getRole() {
+		return role;
+	}
+
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 

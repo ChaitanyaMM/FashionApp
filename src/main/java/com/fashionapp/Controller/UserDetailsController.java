@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ import com.fashionapp.Entity.FollowersGroup;
 import com.fashionapp.Entity.FollowingGroup;
 import com.fashionapp.Entity.Likes;
 import com.fashionapp.Entity.Share;
-import com.fashionapp.Entity.UserDetails;
+import com.fashionapp.Entity.UserInfo;
 import com.fashionapp.Entity.UserGroupMap;
 import com.fashionapp.Repository.CommentsRepository;
 import com.fashionapp.Repository.FileInfoRepository;
@@ -37,6 +38,7 @@ import com.fashionapp.Repository.ShareRepository;
 import com.fashionapp.Repository.UserDetailsRepository;
 import com.fashionapp.Repository.UserGroupMapRepository;
 import com.fashionapp.filestorage.FileStorage;
+import com.fashionapp.util.MailSender;
 import com.fashionapp.util.PasswordEncryptDecryptor;
 import com.fashionapp.util.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,8 +79,12 @@ public class UserDetailsController {
 
 	@Autowired
 	private UserGroupMapRepository userGroupMapRepository;
+	
+	@Autowired
+	@Qualifier("mailsender")
+	MailSender sender;
 
-	@ApiOperation(value = "user-signup", response = UserDetails.class)
+	@ApiOperation(value = "user-signup", response = UserInfo.class)
 	@RequestMapping(value = "/signup", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> usersignup(@RequestParam("data") String data,
@@ -86,9 +92,9 @@ public class UserDetailsController {
 
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		UserDetails userDetails = null;
+		UserInfo userDetails = null;
 		try {
-			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
+			userDetails = new ObjectMapper().readValue(data, UserInfo.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -103,35 +109,42 @@ public class UserDetailsController {
 		 * userDetails.setImagepath(path.toString());
 		 */
 
-		UserDetails isemailExists = userDetailsRepository.findByEmail(userDetails.getEmail());
+		UserInfo isemailExists = userDetailsRepository.findByEmail(userDetails.getEmail());
 		if (isemailExists != null) {
 			log.info("Email Id already exists, please choose another email id");
 			response = server.getDuplicateResponse("Email Id already exists, please choose another email id", null);
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CONFLICT);
 		}
-
+		userDetails.setPassword(PasswordEncryptDecryptor.encrypt(userDetails.getPassword()));
+		userDetails.setRole("USER");
+		
 		byte[] image = profileImage.getBytes();
 		userDetails.setImage(image);
-		UserDetails userData = userDetailsRepository.save(userDetails);
+		
+		UserInfo userData = userDetailsRepository.save(userDetails);
+		
+		sender.sendmail(userDetails.getEmail());
+		
 		System.out.println("creating default group");
 		DefaultfollowingGroup(userDetails.getId(), userDetails.getEmail());
 		DefaultfollowersGroup(userDetails.getId(), userDetails.getEmail());
 		response = server.getSuccessResponse("SignUp Successful", userData);
+		
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	@ApiOperation(value = "user-login", response = UserDetails.class)
+	/*@ApiOperation(value = "user-login", response = UserInfo.class)
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> userlogin(@RequestBody String data) throws Exception {
 
-		UserDetails userDetails = null;
+		UserInfo userDetails = null;
 		try {
-			userDetails = new ObjectMapper().readValue(data, UserDetails.class);
+			userDetails = new ObjectMapper().readValue(data, UserInfo.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		UserDetails userDetailsObj = userDetailsRepository.findByEmail(userDetails.getEmail());
+		UserInfo userDetailsObj = userDetailsRepository.findByEmail(userDetails.getEmail());
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (userDetailsObj != null) {
@@ -151,51 +164,51 @@ public class UserDetailsController {
 			map.put("status", false);
 		}
 		return ResponseEntity.ok().body(map);
-	}
+	}*/
 
-	@ApiOperation(value = "list_of_users", response = UserDetails.class)
+	@ApiOperation(value = "list_of_users", response = UserInfo.class)
 	@RequestMapping(value = "/getusers", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> getAll() throws IOException, ParseException {
 		Map<String, Object> map = new HashMap<String, Object>();
-		Iterable<UserDetails> fecthed = userDetailsRepository.findAll();
+		Iterable<UserInfo> fecthed = userDetailsRepository.findAll();
 		map.put("Data", fecthed);
 		map.put("message", "Successfull !.");
 		map.put("status", true);
 		return ResponseEntity.ok().body(map);
 	}
 
-	@ApiOperation(value = "updating userdetails", response = UserDetails.class)
+	@ApiOperation(value = "updating userdetails", response = UserInfo.class)
 	@RequestMapping(value = "/update-user", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> update(@RequestParam long id, @RequestBody String data)
 			throws IOException, ParseException {
-		UserDetails userdetails = null;
+		UserInfo userdetails = null;
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		try {
-			userdetails = new ObjectMapper().readValue(data, UserDetails.class);
+			userdetails = new ObjectMapper().readValue(data, UserInfo.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		userdetails.setId(id);
-		UserDetails fecthed = userDetailsRepository.save(userdetails);
+		UserInfo fecthed = userDetailsRepository.save(userdetails);
 		response = server.getSuccessResponse("SignUp Successful", fecthed);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "retreieving by userid", response = UserDetails.class)
+	@ApiOperation(value = "retreieving by userid", response = UserInfo.class)
 	@RequestMapping(value = "/find-user-by-id", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> findUser(@RequestParam long id) throws IOException, ParseException {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		Optional<UserDetails> fecthed = userDetailsRepository.findById(id);
+		Optional<UserInfo> fecthed = userDetailsRepository.findById(id);
 		response = server.getSuccessResponse("Uploded Successfully", fecthed);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "delete-user", response = UserDetails.class)
+	@ApiOperation(value = "delete-user", response = UserInfo.class)
 	@RequestMapping(value = "/delete-user", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> delete(@RequestParam long id) throws IOException, ParseException {
@@ -213,7 +226,7 @@ public class UserDetailsController {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		FileInfo fileInfo = new FileInfo();
-		UserDetails userdetails = new UserDetails();
+		UserInfo userdetails = new UserInfo();
 		Date date = new Date(System.currentTimeMillis());
 		fileInfo.setDate(date);
 		fileInfo.setFilename(file.getOriginalFilename());
@@ -240,7 +253,7 @@ public class UserDetailsController {
 			@RequestParam("file") MultipartFile[] file) throws IOException {
 
 		FileInfo fileInfo = new FileInfo();
-		UserDetails userdetails = new UserDetails();
+		UserInfo userdetails = new UserInfo();
 		Date date = new Date(System.currentTimeMillis());
 		fileInfo.setDate(date);
 
@@ -378,7 +391,7 @@ public class UserDetailsController {
 	@RequestMapping(value = "/unfollow", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> unfollowUser(@RequestParam("userId") long userId) {
-		Optional<UserDetails> userData = userDetailsRepository.findById(userId);
+		Optional<UserInfo> userData = userDetailsRepository.findById(userId);
 		Map<String, Object> response = new HashMap<String, Object>();
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		response = server.getSuccessResponse("unfollowed-Successfull", userData.get().getNickName());
@@ -454,7 +467,7 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	@ApiOperation(value = "block-user", response = UserDetails.class)
+	@ApiOperation(value = "block-user", response = UserInfo.class)
 	@RequestMapping(value = "/block", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> blockuser(@RequestParam("data") String username) throws Exception {
@@ -471,6 +484,32 @@ public class UserDetailsController {
 
 		return null;
 
+	}
+	
+	@ApiOperation(value = "user-forgotpwd", response = UserInfo.class)
+	@RequestMapping(value = "/forgotpwd", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> userforgotpwd(@RequestBody String data) throws Exception {
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		UserInfo userInfo = null;
+		try {
+			userInfo = new ObjectMapper().readValue(data, UserInfo.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		UserInfo userInfoObj = userDetailsRepository.findByEmail(userInfo.getEmail());
+		if (userInfoObj != null) {
+			userInfoObj.setPassword(PasswordEncryptDecryptor.encrypt(userInfo.getPassword()));
+			Date date = new Date(System.currentTimeMillis());
+			userInfoObj.setCreationDate(date);
+			UserInfo userData = userDetailsRepository.save(userInfoObj);
+			response = server.getSuccessResponse("Password changed Successfully..", userData);
+		} else {
+			response = server.getNotFoundResponse("User is not registered",null);
+		}
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
 }

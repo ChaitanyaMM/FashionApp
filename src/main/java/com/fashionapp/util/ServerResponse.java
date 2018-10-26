@@ -45,5 +45,15 @@ public class ServerResponse<T> {
 
 			return errorResponse;
 		}
+		
+		public Map<String, Object> getNotFoundResponse(String message, T data) {
+			Map<String, Object> errorResponse = new HashMap<String, Object>();
+			errorResponse.put("message", message);
+			errorResponse.put("statusCode", HttpStatus.NOT_FOUND.value());
+			errorResponse.put("successful", false);
+			errorResponse.put("data", data);
+
+			return errorResponse;
+		}
 
 }

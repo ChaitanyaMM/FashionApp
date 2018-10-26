@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fashionapp.Entity.Admin;
-import com.fashionapp.Entity.UserDetails;
+import com.fashionapp.Entity.UserInfo;
 import com.fashionapp.Repository.AdminRepository;
 import com.fashionapp.Repository.UserDetailsRepository;
 import com.fashionapp.util.ServerResponse;
@@ -52,12 +52,12 @@ public class AdminController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
-	@ApiOperation(value = "list_of_users", response = UserDetails.class)
+	@ApiOperation(value = "list_of_users", response = UserInfo.class)
 	@RequestMapping(value = "/getusers", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> getAll() throws IOException, ParseException {
 		Map<String, Object> map = new HashMap<String, Object>();
-		Iterable<UserDetails> fecthed = userDetailsRepository.findAll();
+		Iterable<UserInfo> fecthed = userDetailsRepository.findAll();
 		map.put("Data", fecthed);
 		map.put("message", "Successfull !.");
 		map.put("status", true);
