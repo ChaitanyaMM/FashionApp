@@ -25,9 +25,9 @@ public class UserGroupMap implements Serializable{
 	private long id;
 	private long userId;
 	private long groupId;
-	/*private String username;
 	private String useremail;
-	private String phoneno;*/
+//	private String username;
+//	private String phoneno;
 	private boolean isMapped;
 	
 	public long getId() {
@@ -48,17 +48,18 @@ public class UserGroupMap implements Serializable{
 	public void setGroupId(long groupId) {
 		this.groupId = groupId;
 	}
-	/*public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
+	
 	public String getUseremail() {
 		return useremail;
 	}
 	public void setUseremail(String useremail) {
 		this.useremail = useremail;
+	}
+	/*public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	public String getPhoneno() {
 		return phoneno;

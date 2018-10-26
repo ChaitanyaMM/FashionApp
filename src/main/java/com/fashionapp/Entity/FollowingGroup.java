@@ -16,6 +16,7 @@ public class FollowingGroup {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private long userId;
+	private long followinguserId;
 	private String groupname;
 	private String useremail;
 	private boolean isDefault;
@@ -32,6 +33,12 @@ public class FollowingGroup {
 	}
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+	public long getFollowinguserId() {
+		return followinguserId;
+	}
+	public void setFollowinguserId(long followinguserId) {
+		this.followinguserId = followinguserId;
 	}
 	public String getGroupname() {
 		return groupname;
