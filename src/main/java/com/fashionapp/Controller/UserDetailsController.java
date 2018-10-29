@@ -1,7 +1,11 @@
 package com.fashionapp.Controller;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,16 +86,22 @@ public class UserDetailsController {
 
 	@Autowired
 	private UserGroupMapRepository userGroupMapRepository;
-	
-    @Autowired
+
+	@Autowired
 	private JwtTokenGenerator jwtTokenGenerator;
-	
+
 	@Autowired
 	@Qualifier("mailsender")
 	MailSender sender;
 
-	
-	
+	/*
+	 * TO:DO
+	 * 
+	 * if profile gets uploaded with image should display that ,or else default
+	 * images should be displayed by category
+	 * 
+	 */
+
 	@ApiOperation(value = "user-signup", response = UserInfo.class)
 	@RequestMapping(value = "/signup", method = RequestMethod.POST)
 	@ResponseBody
@@ -105,16 +116,6 @@ public class UserDetailsController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		/*
-		 * try { fileStorage.store(profileImage);
-		 * log.info("File uploaded successfully! -> filename = " +
-		 * profileImage.getOriginalFilename()); } catch (Exception e) {
-		 * log.info("Fail! -> uploaded filename: = " +
-		 * profileImage.getOriginalFilename()); } Resource path =
-		 * fileStorage.loadFile(profileImage.getOriginalFilename());
-		 * System.out.println("PATH :=" + path.toString());
-		 * userDetails.setImagepath(path.toString());
-		 */
 
 		UserInfo isemailExists = userDetailsRepository.findByEmail(userDetails.getEmail());
 		if (isemailExists != null) {
@@ -123,27 +124,47 @@ public class UserDetailsController {
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CONFLICT);
 		}
 		userDetails.setPassword(PasswordEncryptDecryptor.encrypt(userDetails.getPassword()));
-		userDetails.setRole("USER");
-		
-		byte[] image = profileImage.getBytes();
-		userDetails.setImage(image);
-		
+		userDetails.setProfileimagename(profileImage.getOriginalFilename());
+
+		try {
+			fileStorage.storeUserProfileImage(profileImage);
+			log.info("File uploaded successfully! -> filename = " + profileImage.getOriginalFilename());
+		} catch (Exception e) {
+			log.info("Fail! -> uploaded filename: = " + profileImage.getOriginalFilename());
+		}
+
+		Resource path = fileStorage.loadprofileImage(profileImage.getOriginalFilename());
+		System.out.println("PATH :=" + path.toString());
+		userDetails.setProfileimageurl(path.toString());
+
+		/*
+		 * byte[] image = profileImage.getBytes(); userDetails.setImage(image);
+		 */
+
 		UserInfo userData = userDetailsRepository.save(userDetails);
-		
-		sender.sendmail(userDetails.getEmail(),"Hi...You have succesfully Registered with FashionApp");
-		
+
+		sender.sendmail(userDetails.getEmail(), "You have succesfully Registered with FashionApp");
+
 		System.out.println("creating default group");
 		DefaultfollowingGroup(userDetails.getId(), userDetails.getEmail());
 		DefaultfollowersGroup(userDetails.getId(), userDetails.getEmail());
 		response = server.getSuccessResponse("SignUp Successful", userData);
-		
+
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
-	
+
+	/*
+	 * TO:DO
+	 * 
+	 * 1.Separate logins for admin and users
+	 * 
+	 * 2. Separate login response based on logged in category if male, male related
+	 * content should occur if female ,female-content,kids ...
+	 */
+
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> getAuthtoken(@RequestBody String data) throws Exception {
-
 		log.info("login calling!!..");
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -156,24 +177,22 @@ public class UserDetailsController {
 			e.printStackTrace();
 		}
 
-		final UserInfo user = userDetailsRepository.findByEmail(userDetails.getEmail()); 
-		     if(user ==null) {
-		    	 response = server.getNotFoundResponse("invalid email", null);
-		 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-		    	 
-		     }
-		
+		final UserInfo user = userDetailsRepository.findByEmail(userDetails.getEmail());
+		if (user == null) {
+			response = server.getNotFoundResponse("invalid email", null);
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+		}
+
 		String pwd = PasswordEncryptDecryptor.encrypt(userDetails.getPassword());
 
-		if (!pwd.equalsIgnoreCase(user.getPassword())){
+		if (!pwd.equalsIgnoreCase(user.getPassword())) {
 			log.info("Invalid password");
 			response = server.getNotFoundResponse("invalid password", null);
-	 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-		}
-		else {
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+		} else {
 			log.info("password is valid");
 		}
-		
+
 		final String token = jwtTokenGenerator.generateToken(user);
 
 		response = server.getSuccessResponse("login succesful", token);
@@ -193,7 +212,7 @@ public class UserDetailsController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		UserInfo userInfoObj = userDetailsRepository.findByEmail(userInfo.getEmail());
 		if (userInfoObj != null) {
 			userInfoObj.setPassword(PasswordEncryptDecryptor.encrypt(userInfo.getPassword()));
@@ -201,13 +220,13 @@ public class UserDetailsController {
 			userInfoObj.setCreationDate(date);
 			UserInfo userData = userDetailsRepository.save(userInfoObj);
 			response = server.getSuccessResponse("Password changed Successfully..", userInfoObj.getEmail());
-			sender.sendmail(userInfoObj.getEmail(),"Changed Password Successfully");
+			sender.sendmail(userInfoObj.getEmail(), "Changed Password Successfully");
 		} else {
-			response = server.getNotFoundResponse("User is not registered",null);
+			response = server.getNotFoundResponse("User is not registered", null);
 		}
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-	
+
 	@ApiOperation(value = "list_of_users", response = UserInfo.class)
 	@RequestMapping(value = "/getusers", method = RequestMethod.GET)
 	@ResponseBody
@@ -216,7 +235,7 @@ public class UserDetailsController {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 
 		Iterable<UserInfo> fecthed = userDetailsRepository.findAll();
-		response = server.getSuccessResponse("fetched",fecthed);
+		response = server.getSuccessResponse("fetched", fecthed);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
@@ -235,10 +254,10 @@ public class UserDetailsController {
 		}
 		userdetails.setId(id);
 		UserInfo fecthed = userDetailsRepository.save(userdetails);
-		response = server.getSuccessResponse("SignUp Successful", fecthed);
+		response = server.getSuccessResponse("Successful", fecthed);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-
+	 
 	@ApiOperation(value = "retreieving by userid", response = UserInfo.class)
 	@RequestMapping(value = "/find-user-by-id", method = RequestMethod.GET)
 	@ResponseBody
@@ -289,55 +308,43 @@ public class UserDetailsController {
 
 	}
 
-	@RequestMapping(value = "/uploadmultiplevideos", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
+	@RequestMapping(value = "/uploadmultiple", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> uplodVideos(@RequestParam("id") long id,
-			@RequestParam("file") MultipartFile[] file) throws IOException {
+			@RequestParam("file") List<MultipartFile> files) throws IOException {
 
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
 		FileInfo fileInfo = new FileInfo();
 		UserInfo userdetails = new UserInfo();
 		Date date = new Date(System.currentTimeMillis());
 		fileInfo.setDate(date);
-
-		// MultipartFile data;
-		for (MultipartFile files : file) {
-			// data = files;
-			System.out.println("files<><" + files.getOriginalFilename());
-			System.out.println("file!!><" + files);
-
-			fileInfo.setFilename(files.getOriginalFilename());
-
+		for (MultipartFile file : files) {
+			fileInfo.setFilename(file.getOriginalFilename());
 			fileInfo.setUser_id(id);
 			userdetails.setId(id);
 			try {
-				fileStorage.storemultiple(file);
-				log.info("File uploaded successfully! -> filename = " + files.getOriginalFilename());
+				fileStorage.storemultiple(files);
+				log.info("File uploaded successfully! -> filename = " + file.getOriginalFilename());
 			} catch (Exception e) {
-				log.info("Fail! -> uploaded filename: = " + files.getOriginalFilename());
+				log.info("Fail! -> uploaded filename: = " + file.getOriginalFilename());
 			}
-			Resource path = fileStorage.loadFile(files.getOriginalFilename());
+			Resource path = fileStorage.loadFile(file.getOriginalFilename());
 			System.out.println("PATH :=" + path.toString());
 			fileInfo.setUrl(path.toString());
+			FileInfo fileinserted = fileInfoRepository.save(fileInfo);
+
+			response = server.getSuccessResponse("Uploded Successfully", fileinserted);
+			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 		}
-		FileInfo fileinserted = fileInfoRepository.save(fileInfo);
 
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("status", HttpStatus.OK);
-		map.put("data", fileinserted);
-		return ResponseEntity.ok().body(map);
+		return null;
 
 	}
 
-	@RequestMapping(value = "/view-videos", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> fetchfiles() throws IOException {
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
-		List<FileInfo> files = (List<FileInfo>) fileInfoRepository.findAll();
-		response = server.getSuccessResponse("fetched", files);
-		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-
-	}
+	/***
+	 * to get the uploaded data by individual user
+	 */
 
 	@RequestMapping(value = "/view-videos-by-userId", method = RequestMethod.GET)
 	@ResponseBody
@@ -416,22 +423,22 @@ public class UserDetailsController {
 
 	@RequestMapping(value = "/follow", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("id") long id,@RequestParam("followingId") long followingId) {
+	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("id") long id,
+			@RequestParam("followingId") long followingId) {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		Optional<FollowingGroup> userData = followingGroupRepository.findByUserId(id);
-		
-		System.out.println("groupID := "+userData.get().getId());
-		System.out.println("userEmail:= "+userData.get().getUseremail());
-		
+
+		System.out.println("groupID := " + userData.get().getId());
+		System.out.println("userEmail:= " + userData.get().getUseremail());
+
 		Optional<FollowingGroup> followingUserData = followingGroupRepository.findByUserId(followingId);
 
-		System.out.println("followingUserData: groupID := "+followingUserData.get().getId());
+		System.out.println("followingUserData: groupID := " + followingUserData.get().getId());
 
-		System.out.println("followingUserData: userEmail:="+followingUserData.get().getUseremail());
-		
-       
-		mapUsertoUsergroup(followingId,userData.get().getId(), userData.get().getUseremail());
+		System.out.println("followingUserData: userEmail:=" + followingUserData.get().getUseremail());
+
+		mapUsertoUsergroup(followingId, userData.get().getId(), userData.get().getUseremail());
 		log.info("following a user");
 		response = server.getSuccessResponse("following-user", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
@@ -439,42 +446,26 @@ public class UserDetailsController {
 
 	@RequestMapping(value = "/unfollow", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> unfollowUser(@RequestParam("id") long id,@RequestParam("followingId") long followingId) {
+	public ResponseEntity<Map<String, Object>> unfollowUser(@RequestParam("id") long id,
+			@RequestParam("followingId") long followingId) {
 		Map<String, Object> response = new HashMap<String, Object>();
 		ServerResponse<Object> server = new ServerResponse<Object>();
-	   
+
 		Optional<FollowingGroup> userData = followingGroupRepository.findByUserId(id);
-		
-		System.out.println("groupID := "+userData.get().getId());
-		System.out.println("userEmail:= "+userData.get().getUseremail());
-		
+
+		System.out.println("groupID := " + userData.get().getId());
+		System.out.println("userEmail:= " + userData.get().getUseremail());
+
 		Optional<FollowingGroup> followingUserData = followingGroupRepository.findByUserId(followingId);
 
-		System.out.println("followingUserData: groupID := "+followingUserData.get().getId());
+		System.out.println("followingUserData: groupID := " + followingUserData.get().getId());
 
-		System.out.println("followingUserData: userEmail:="+followingUserData.get().getUseremail());
-		
-		unmapuserfromUsergroup(followingId,userData.get().getId(), userData.get().getUseremail());
+		System.out.println("followingUserData: userEmail:=" + followingUserData.get().getUseremail());
+
+		unmapuserfromUsergroup(followingId, userData.get().getId(), userData.get().getUseremail());
 		response = server.getSuccessResponse("unfollowed-Successfull", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-	
-	/*@RequestMapping(value = "/findallUsersingroup", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> findUsersInGroup(@RequestParam("id") long id) {
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
-		
-		UserGroupMap mappedUsers = userGroupMapRepository.findByUserId(id);
-		
-		response = server.getSuccessResponse("fecthed users from group", mappedUsers);
-		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);		
-		
-		
-	}
-*/
-	
-	
 
 	public ResponseEntity<Map<String, Object>> mapUsertoUsergroup(long userId, long groupId, String email) {
 		log.info("to follow user");
@@ -496,8 +487,8 @@ public class UserDetailsController {
 
 	}
 
-	public ResponseEntity<Map<String, Object>> unmapuserfromUsergroup(long userId,long groupId, String email) {
-		
+	public ResponseEntity<Map<String, Object>> unmapuserfromUsergroup(long userId, long groupId, String email) {
+
 		UserGroupMap unmapuserData = userGroupMapRepository.findByUserId(userId);
 
 		userGroupMapRepository.deleteById(unmapuserData.getId());
@@ -556,7 +547,5 @@ public class UserDetailsController {
 		return null;
 
 	}
-	
-	
 
 }

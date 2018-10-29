@@ -13,12 +13,11 @@ import javax.persistence.Table;
 public class FileInfo {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private String filename;
 	private String url;
 	private Date date;
-	
 	private Long userid; //f.k
 	
 	public FileInfo() {
@@ -60,6 +59,7 @@ public class FileInfo {
 	public void setDate(Date date) {
 		this.date = date;
 	}
+
 
 	public Long getUser_id() {
 		return userid;

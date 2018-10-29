@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fashionapp.Entity.Admin;
@@ -64,7 +66,27 @@ public class AdminController {
 		return ResponseEntity.ok().body(map);
 	}
 	
-	
+	@ApiOperation(value = "retreieving by userid", response = UserInfo.class)
+	@RequestMapping(value = "/find-user-by-id", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> findUser(@RequestParam long id) throws IOException, ParseException {
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		Optional<UserInfo> fecthed = userDetailsRepository.findById(id);
+		response = server.getSuccessResponse("Uploded Successfully", fecthed);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "delete-user", response = UserInfo.class)
+	@RequestMapping(value = "/delete-user", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> delete(@RequestParam long id) throws IOException, ParseException {
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		userDetailsRepository.deleteById(id);
+		response = server.getSuccessResponse("deleted successfully", null);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+	}
 	
 	/*
 	 * TO-DO:
