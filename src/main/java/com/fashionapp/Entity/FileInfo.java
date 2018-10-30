@@ -19,6 +19,7 @@ public class FileInfo {
 	private String url;
 	private Date date;
 	private Long userid; //f.k
+	private boolean isActive;
 	
 	public FileInfo() {
 		

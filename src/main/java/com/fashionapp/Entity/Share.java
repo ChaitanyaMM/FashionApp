@@ -20,7 +20,6 @@ public class Share implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@Column(unique = true)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private long userId;

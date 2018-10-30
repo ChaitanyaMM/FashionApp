@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,7 +21,6 @@ public class Likes implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@Column(unique = true)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
@@ -27,11 +28,15 @@ public class Likes implements Serializable{
 
 	private long videoId;
 
-	@Column(columnDefinition = "tinyint(1) default 0")
+	/*@Column(columnDefinition = "tinyint(1) default 0")
 	private boolean liked;
 
 	@Column(columnDefinition = "tinyint(1) default 0")
-	private boolean disLiked;
+	private boolean disLiked;*/
+	
+	@Column( columnDefinition = "tinyint(1) default 2")
+	@Enumerated(value = EnumType.ORDINAL)
+	private Status status;
 	
 	@Column(name="time")
 	private Date date;
@@ -68,7 +73,7 @@ public class Likes implements Serializable{
 		this.videoId = videoId;
 	}
 
-	public boolean isLiked() {
+	/*public boolean isLiked() {
 		return liked;
 	}
 
@@ -82,7 +87,7 @@ public class Likes implements Serializable{
 
 	public void setDisLiked(boolean disLiked) {
 		this.disLiked = disLiked;
-	}
+	}*/
 
 	public Date getDate() {
 		return date;
@@ -92,17 +97,13 @@ public class Likes implements Serializable{
 		this.date = date;
 	}
 
-	/**
-	 * 
-	 * @param userId
-	 * @param videoId
-	 * @param liked
-	 * @param disLiked
-	 */
-	public Likes(Long userId, Long videoId, boolean liked, boolean disLiked) {
-		this.userId = userId;
-		this.videoId = videoId;
-		this.liked = liked;
-		this.disLiked = disLiked;
+	public Status getStatus() {
+		return status;
 	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+	
 }

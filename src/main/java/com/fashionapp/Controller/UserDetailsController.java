@@ -1,14 +1,9 @@
 package com.fashionapp.Controller;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +27,7 @@ import com.fashionapp.Entity.FollowersGroup;
 import com.fashionapp.Entity.FollowingGroup;
 import com.fashionapp.Entity.Likes;
 import com.fashionapp.Entity.Share;
+import com.fashionapp.Entity.Status;
 import com.fashionapp.Entity.UserInfo;
 import com.fashionapp.Entity.UserGroupMap;
 import com.fashionapp.Repository.CommentsRepository;
@@ -136,10 +131,6 @@ public class UserDetailsController {
 		Resource path = fileStorage.loadprofileImage(profileImage.getOriginalFilename());
 		System.out.println("PATH :=" + path.toString());
 		userDetails.setProfileimageurl(path.toString());
-
-		/*
-		 * byte[] image = profileImage.getBytes(); userDetails.setImage(image);
-		 */
 
 		UserInfo userData = userDetailsRepository.save(userDetails);
 
@@ -276,7 +267,7 @@ public class UserDetailsController {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		userDetailsRepository.deleteById(id);
-		response = server.getSuccessResponse("deleted successfully", null);
+		response = server.getSuccessResponse("deleted successfully", id);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
@@ -365,6 +356,7 @@ public class UserDetailsController {
 		Likes likesObject = new Likes();
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
+		Likes likesData = null;
 		try {
 			likesObject = new ObjectMapper().readValue(data, Likes.class);
 		} catch (Exception e) {
@@ -372,8 +364,22 @@ public class UserDetailsController {
 		}
 		likesObject.setUserId(userId);
 		likesObject.setVideoId(fileId);
-		Likes likesData = likeRepository.save(likesObject);
-		response = server.getSuccessResponse("liked", likesData);
+		Likes likesObj = likeRepository.findByUserIdAndVideoId(userId, fileId);
+		String status = null;
+		if (likesObject.getStatus() == Status.Liked) {
+			status = "Liked";
+		} else {
+			status = "DisLiked";
+		}
+		if (likesObj == null) {
+			likesData = likeRepository.save(likesObject);
+
+		} else {
+			likesObj.setStatus(likesObject.getStatus());
+			likesData = likeRepository.save(likesObj);
+
+		}
+		response = server.getSuccessResponse(status, likesData);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 

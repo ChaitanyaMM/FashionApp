@@ -21,15 +21,12 @@ public class Comments implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@Column(unique = true)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-
 	private long userId;
-
 	private long videoId;
-
 	private String comment;
+	private boolean isActive;
 
 	@Column(name = "added_on", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)

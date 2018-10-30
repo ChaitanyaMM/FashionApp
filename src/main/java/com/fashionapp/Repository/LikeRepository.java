@@ -5,5 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import com.fashionapp.Entity.Likes;
 
 public interface LikeRepository extends CrudRepository<Likes, Long>{
+	
+	Likes findByUserIdAndVideoId(long userId,long fileId);
 
 }

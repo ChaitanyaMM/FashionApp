@@ -1,6 +1,5 @@
 package com.fashionapp.Entity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,10 +11,10 @@ import javax.persistence.Table;
 public class FollowersGroup {
 	
 	@Id
-	@Column(unique = true)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private long userId;
+//	private long followeruserId;
 	private String groupname;
 	private String useremail;
 	private boolean isDefault;
@@ -33,6 +32,12 @@ public class FollowersGroup {
 	public void setUserId(long userId) {
 		this.userId = userId;
 	}
+	/*public long getFolloweruserId() {
+		return followeruserId;
+	}
+	public void setFolloweruserId(long followeruserId) {
+		this.followeruserId = followeruserId;
+	}*/
 	public String getGroupname() {
 		return groupname;
 	}
