@@ -2,6 +2,7 @@ package com.fashionapp.Controller;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,8 @@ import com.fashionapp.Entity.Comments;
 import com.fashionapp.Entity.FileInfo;
 import com.fashionapp.Entity.FollowersGroup;
 import com.fashionapp.Entity.FollowingGroup;
+import com.fashionapp.Entity.HashTag;
+import com.fashionapp.Entity.HashtagVideoMap;
 import com.fashionapp.Entity.Likes;
 import com.fashionapp.Entity.Share;
 import com.fashionapp.Entity.Status;
@@ -34,6 +37,8 @@ import com.fashionapp.Repository.CommentsRepository;
 import com.fashionapp.Repository.FileInfoRepository;
 import com.fashionapp.Repository.FollowersGroupRepository;
 import com.fashionapp.Repository.FollowingGroupRepository;
+import com.fashionapp.Repository.HashTagRepository;
+import com.fashionapp.Repository.HashtagVideoMapRepository;
 import com.fashionapp.Repository.LikeRepository;
 import com.fashionapp.Repository.ShareRepository;
 import com.fashionapp.Repository.UserDetailsRepository;
@@ -81,6 +86,12 @@ public class UserDetailsController {
 
 	@Autowired
 	private UserGroupMapRepository userGroupMapRepository;
+
+	@Autowired
+	private HashTagRepository hashTagRepository;
+
+	@Autowired
+	private HashtagVideoMapRepository hashtagVideoMapRepository;
 
 	@Autowired
 	private JwtTokenGenerator jwtTokenGenerator;
@@ -134,11 +145,12 @@ public class UserDetailsController {
 
 		UserInfo userData = userDetailsRepository.save(userDetails);
 
-		sender.sendmail(userDetails.getEmail(), "You have succesfully Registered with FashionApp");
+		// sender.sendmail(userDetails.getEmail(), "You have succesfully Registered with
+		// FashionApp");
 
 		System.out.println("creating default group");
 		DefaultfollowingGroup(userDetails.getId(), userDetails.getEmail());
-		DefaultfollowersGroup(userDetails.getId(), userDetails.getEmail());
+		// DefaultfollowersGroup(userDetails.getId(), userDetails.getEmail());
 		response = server.getSuccessResponse("SignUp Successful", userData);
 
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
@@ -248,7 +260,7 @@ public class UserDetailsController {
 		response = server.getSuccessResponse("Successful", fecthed);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-	 
+
 	@ApiOperation(value = "retreieving by userid", response = UserInfo.class)
 	@RequestMapping(value = "/find-user-by-id", method = RequestMethod.GET)
 	@ResponseBody
@@ -274,9 +286,17 @@ public class UserDetailsController {
 	@RequestMapping(value = "/uploadvideo", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> upload(@RequestParam("id") long id,
-			@RequestParam("file") MultipartFile file) throws IOException {
+			@RequestParam("file") MultipartFile file,@RequestParam("tag") String tag) throws IOException {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
+		
+		HashTag hashtag =null;
+		try {
+			hashtag = new ObjectMapper().readValue(tag, HashTag.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		FileInfo fileInfo = new FileInfo();
 		UserInfo userdetails = new UserInfo();
 		Date date = new Date(System.currentTimeMillis());
@@ -294,6 +314,35 @@ public class UserDetailsController {
 		System.out.println("PATH :=" + path.toString());
 		fileInfo.setUrl(path.toString());
 		FileInfo fileinserted = fileInfoRepository.save(fileInfo);
+		 
+		if(tag != null) {
+			HashTag tagData = hashTagRepository.save(hashtag);
+			
+//			Optional<FileInfo> fetchedVideo = fileInfoRepository.findById(id);
+//			HashTag fetchedId = fileInfoRepository.findByhashtag();
+//
+//			
+//			
+//			HashtagVideoMap mappingtag = new HashtagVideoMap();
+//			mappingtag.setVideoId(fetchedVideo.get().getId());
+//			mappingtag.setTagId(tagId);
+//			mappingtag.setUserId(id);
+//			
+//			
+//		    HashtagVideoMap mappedData =hashtagVideoMapRepository.save(mappingtag);
+
+			 
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		response = server.getSuccessResponse("Uploded Successfully", fileinserted);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
@@ -303,33 +352,35 @@ public class UserDetailsController {
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> uplodVideos(@RequestParam("id") long id,
 			@RequestParam("file") List<MultipartFile> files) throws IOException {
-
+		List<FileInfo> fileinsertedlist = new ArrayList<>();
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		FileInfo fileInfo = new FileInfo();
-		UserInfo userdetails = new UserInfo();
-		Date date = new Date(System.currentTimeMillis());
-		fileInfo.setDate(date);
+
 		for (MultipartFile file : files) {
-			fileInfo.setFilename(file.getOriginalFilename());
-			fileInfo.setUser_id(id);
-			userdetails.setId(id);
+
 			try {
 				fileStorage.storemultiple(files);
 				log.info("File uploaded successfully! -> filename = " + file.getOriginalFilename());
 			} catch (Exception e) {
 				log.info("Fail! -> uploaded filename: = " + file.getOriginalFilename());
 			}
+			FileInfo fileInfo = new FileInfo();
+			UserInfo userdetails = new UserInfo();
+			fileInfo.setFilename(file.getOriginalFilename());
+			fileInfo.setUser_id(id);
+			userdetails.setId(id);
+			Date date = new Date(System.currentTimeMillis());
+			fileInfo.setDate(date);
 			Resource path = fileStorage.loadFile(file.getOriginalFilename());
 			System.out.println("PATH :=" + path.toString());
 			fileInfo.setUrl(path.toString());
 			FileInfo fileinserted = fileInfoRepository.save(fileInfo);
+			fileinsertedlist.add(fileinserted);
 
-			response = server.getSuccessResponse("Uploded Successfully", fileinserted);
-			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 		}
+		response = server.getSuccessResponse("Uploded Successfully", fileinsertedlist);
 
-		return null;
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
@@ -348,6 +399,10 @@ public class UserDetailsController {
 
 	}
 
+	/*
+	 * works for both like and dislike
+	 * 
+	 */
 	@ApiOperation(value = "like_file", response = Likes.class)
 	@RequestMapping(value = "/likes", method = RequestMethod.POST)
 	@ResponseBody
@@ -383,6 +438,10 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
+	/*
+	 * works for both comment and uncomment
+	 * 
+	 */
 	@ApiOperation(value = "comment", response = Comments.class)
 	@RequestMapping(value = "/comment", method = RequestMethod.POST)
 	@ResponseBody
@@ -399,7 +458,18 @@ public class UserDetailsController {
 		}
 		comentsObject.setUserId(userId);
 		comentsObject.setVideoId(fileId);
-		Comments commentsData = commentsRepository.save(comentsObject);
+
+		Comments commentsData = null;
+		Comments fetchedComments = commentsRepository.findByUserIdAndVideoId(userId, fileId);
+
+		if (fetchedComments == null) {
+
+			commentsData = commentsRepository.save(comentsObject);
+
+		} else {
+			fetchedComments.setComment(comentsObject.getComment());
+			commentsData = commentsRepository.save(fetchedComments);
+		}
 		response = server.getSuccessResponse("commented", commentsData);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
@@ -427,6 +497,10 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
+	/*
+	 * works for both follow/unfollow else we can use unfollow seperatly
+	 */
+
 	@RequestMapping(value = "/follow", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("id") long id,
@@ -435,18 +509,17 @@ public class UserDetailsController {
 		Map<String, Object> response = new HashMap<String, Object>();
 		Optional<FollowingGroup> userData = followingGroupRepository.findByUserId(id);
 
-		System.out.println("groupID := " + userData.get().getId());
-		System.out.println("userEmail:= " + userData.get().getUseremail());
+		UserGroupMap fetchedMapData = userGroupMapRepository.findByUserIdAndFollowinguserId(id, followingId);
+		if (fetchedMapData == null) {
+			mapUsertoUsergroup(id, followingId, userData.get().getId(), userData.get().getUseremail());
+			response = server.getSuccessResponse("following-user", null);
 
-		Optional<FollowingGroup> followingUserData = followingGroupRepository.findByUserId(followingId);
+		} else {
+			unmapuserfromUsergroup(id, followingId, userData.get().getId(), userData.get().getUseremail());
+			response = server.getSuccessResponse("un-followed user", null);
 
-		System.out.println("followingUserData: groupID := " + followingUserData.get().getId());
+		}
 
-		System.out.println("followingUserData: userEmail:=" + followingUserData.get().getUseremail());
-
-		mapUsertoUsergroup(followingId, userData.get().getId(), userData.get().getUseremail());
-		log.info("following a user");
-		response = server.getSuccessResponse("following-user", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
@@ -459,21 +532,13 @@ public class UserDetailsController {
 
 		Optional<FollowingGroup> userData = followingGroupRepository.findByUserId(id);
 
-		System.out.println("groupID := " + userData.get().getId());
-		System.out.println("userEmail:= " + userData.get().getUseremail());
-
-		Optional<FollowingGroup> followingUserData = followingGroupRepository.findByUserId(followingId);
-
-		System.out.println("followingUserData: groupID := " + followingUserData.get().getId());
-
-		System.out.println("followingUserData: userEmail:=" + followingUserData.get().getUseremail());
-
-		unmapuserfromUsergroup(followingId, userData.get().getId(), userData.get().getUseremail());
+		unmapuserfromUsergroup(id, followingId, userData.get().getId(), userData.get().getUseremail());
 		response = server.getSuccessResponse("unfollowed-Successfull", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	public ResponseEntity<Map<String, Object>> mapUsertoUsergroup(long userId, long groupId, String email) {
+	public ResponseEntity<Map<String, Object>> mapUsertoUsergroup(long userId, long followinguserId, long groupId,
+			String email) {
 		log.info("to follow user");
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
@@ -482,8 +547,7 @@ public class UserDetailsController {
 		userGroupMap.setGroupId(groupId);
 		userGroupMap.setUserId(userId);
 		userGroupMap.setUseremail(email);
-//	    userGroupMap.setPhoneno(phoneno);
-//		userGroupMap.setUsername(username);
+		userGroupMap.setFollowinguserId(followinguserId);
 		userGroupMap.setMapped(true);
 
 		UserGroupMap usermappedData = userGroupMapRepository.save(userGroupMap);
@@ -493,11 +557,13 @@ public class UserDetailsController {
 
 	}
 
-	public ResponseEntity<Map<String, Object>> unmapuserfromUsergroup(long userId, long groupId, String email) {
+	public ResponseEntity<Map<String, Object>> unmapuserfromUsergroup(long userId, long followinguserId, long groupId,
+			String email) {
 
-		UserGroupMap unmapuserData = userGroupMapRepository.findByUserId(userId);
+		UserGroupMap fetchedMapData = userGroupMapRepository.findByUserIdAndFollowinguserId(userId, followinguserId);
+		System.out.println("fetchedMapData := " + fetchedMapData);
 
-		userGroupMapRepository.deleteById(unmapuserData.getId());
+		userGroupMapRepository.deleteById(fetchedMapData.getId());
 
 		log.info("following a user");
 		ServerResponse<Object> server = new ServerResponse<Object>();

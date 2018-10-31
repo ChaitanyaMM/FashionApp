@@ -47,12 +47,12 @@ public class AdminController {
 	@Autowired
 	private BlockedDataRepository blockedDataRepository;
 	
-	@RequestMapping(value="/sample")
+/*	@RequestMapping(value="/sample")
 	@ResponseBody
 	public String sample() {
 		
 		return "Sample!";
-	}
+	}*/
 	@ApiOperation(value = "admin-creation", response = Admin.class)
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	@ResponseBody

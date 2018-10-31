@@ -2,6 +2,7 @@ package com.fashionapp.Entity;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,8 +21,8 @@ public class UserGroupMap implements Serializable {
 	private long userId;
 	private long groupId;
 	private String useremail;
-//	private String username;
-//	private String phoneno;
+	private long followinguserId;
+
 	private boolean isMapped;
 	
 	public long getId() {
@@ -66,6 +67,12 @@ public class UserGroupMap implements Serializable {
 	}
 	public void setMapped(boolean isMapped) {
 		this.isMapped = isMapped;
+	}
+	public long getFollowinguserId() {
+		return followinguserId;
+	}
+	public void setFollowinguserId(long followinguserId) {
+		this.followinguserId = followinguserId;
 	}
 	
 

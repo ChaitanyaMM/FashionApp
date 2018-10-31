@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@ComponentScan(basePackages = { "com.*" })
+
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource(name = "userService")
@@ -52,6 +55,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 authorizeRequests()
                 .antMatchers("/userdetails/*").permitAll()
                 .antMatchers("/admin/*").permitAll()
+                .antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/configuration/security",
+                        "/swagger-ui.html", "/webjars/**", "/swagger-resources/configuration/ui", "/swagger-ui.html",
+                        "/swagger-resources/configuration/security")
+                .permitAll()
+                //.antMatchers("/swagger-resources/*", "*.html","/swagger-ui.html","/v2/api-docs","/admin/*","/userdetails/*").permitAll()
                 /*.antMatchers("/").permitAll()
                 .antMatchers("/users").authenticated();*/
                 .anyRequest().authenticated()

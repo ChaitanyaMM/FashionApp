@@ -69,4 +69,12 @@ public class Comments implements Serializable{
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
 }
