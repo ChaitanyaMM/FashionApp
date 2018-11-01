@@ -22,11 +22,7 @@ public class HashtagVideoMap implements Serializable {
 	private long id;
 	private long videoId;
 	private long tagId;
-	private long userId;
-	private boolean ismapped;
-	
-	
-	
+	private boolean isMapped;
 	public long getId() {
 		return id;
 	}
@@ -45,17 +41,15 @@ public class HashtagVideoMap implements Serializable {
 	public void setTagId(long tagId) {
 		this.tagId = tagId;
 	}
-	public boolean isIsmapped() {
-		return ismapped;
+	public boolean isMapped() {
+		return isMapped;
 	}
-	public void setIsmapped(boolean ismapped) {
-		this.ismapped = ismapped;
+	public void setMapped(boolean isMapped) {
+		this.isMapped = isMapped;
 	}
-	public long getUserId() {
-		return userId;
-	}
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
+	
+	
+	
+	 
 
 }

@@ -3,6 +3,7 @@ package com.fashionapp.Controller;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,8 @@ import com.fashionapp.util.MailSender;
 import com.fashionapp.util.PasswordEncryptDecryptor;
 import com.fashionapp.util.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -99,6 +102,8 @@ public class UserDetailsController {
 	@Autowired
 	@Qualifier("mailsender")
 	MailSender sender;
+	
+	
 
 	/*
 	 * TO:DO
@@ -130,7 +135,7 @@ public class UserDetailsController {
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CONFLICT);
 		}
 		userDetails.setPassword(PasswordEncryptDecryptor.encrypt(userDetails.getPassword()));
-		userDetails.setProfileimagename(profileImage.getOriginalFilename());
+		userDetails.setProfileImageName(profileImage.getOriginalFilename());
 
 		try {
 			fileStorage.storeUserProfileImage(profileImage);
@@ -141,7 +146,7 @@ public class UserDetailsController {
 
 		Resource path = fileStorage.loadprofileImage(profileImage.getOriginalFilename());
 		System.out.println("PATH :=" + path.toString());
-		userDetails.setProfileimageurl(path.toString());
+		userDetails.setProfileImageUrl(path.toString());
 
 		UserInfo userData = userDetailsRepository.save(userDetails);
 
@@ -283,26 +288,23 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
+	
+	
+	
 	@RequestMapping(value = "/uploadvideo", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> upload(@RequestParam("id") long id,
-			@RequestParam("file") MultipartFile file,@RequestParam("tag") String tag) throws IOException {
+			@RequestParam("file") MultipartFile file, @RequestParam("tag") String tag) throws IOException {
+
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		
-		HashTag hashtag =null;
-		try {
-			hashtag = new ObjectMapper().readValue(tag, HashTag.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+
 		FileInfo fileInfo = new FileInfo();
 		UserInfo userdetails = new UserInfo();
 		Date date = new Date(System.currentTimeMillis());
 		fileInfo.setDate(date);
-		fileInfo.setFilename(file.getOriginalFilename());
-		fileInfo.setUser_id(id);
+		fileInfo.setFileName(file.getOriginalFilename());
+		fileInfo.setUserId(id);
 		userdetails.setId(id);
 		try {
 			fileStorage.store(file);
@@ -314,76 +316,111 @@ public class UserDetailsController {
 		System.out.println("PATH :=" + path.toString());
 		fileInfo.setUrl(path.toString());
 		FileInfo fileinserted = fileInfoRepository.save(fileInfo);
-		 
-		if(tag != null) {
-			HashTag tagData = hashTagRepository.save(hashtag);
-			
-//			Optional<FileInfo> fetchedVideo = fileInfoRepository.findById(id);
-//			HashTag fetchedId = fileInfoRepository.findByhashtag();
-//
-//			
-//			
-//			HashtagVideoMap mappingtag = new HashtagVideoMap();
-//			mappingtag.setVideoId(fetchedVideo.get().getId());
-//			mappingtag.setTagId(tagId);
-//			mappingtag.setUserId(id);
-//			
-//			
-//		    HashtagVideoMap mappedData =hashtagVideoMapRepository.save(mappingtag);
 
-			 
+		HashTag hashtag = null;
+		try {
+			hashtag = new ObjectMapper().readValue(tag, HashTag.class);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+		if (tag != null) {
+		    /*Note:- we can remove userID from the hastag entity*/
+			hashtag.setUserId(id);
+			HashTag tagData = hashTagRepository.save(hashtag);
+
+			HashtagVideoMap mappingtag = new HashtagVideoMap();
+			log.info("ineinserted.getId() :+=" + fileinserted.getId());
+			mappingtag.setVideoId(fileinserted.getId());
+
+			log.info("tagData.getId() :+=" + tagData.getId());
+
+			mappingtag.setTagId(tagData.getId());
+			mappingtag.setMapped(true);
+
+			HashtagVideoMap mappedData = hashtagVideoMapRepository.save(mappingtag);
+			log.info("mapped Successfully");
+
+		}
+
 		response = server.getSuccessResponse("Uploded Successfully", fileinserted);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
-	@RequestMapping(value = "/uploadmultiple", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
+	 @RequestMapping(value = "/uploadmultiple", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> uplodVideos(@RequestParam("id") long id,
-			@RequestParam("file") List<MultipartFile> files) throws IOException {
+			@RequestParam("file") List<MultipartFile> files, @RequestParam("tag") List<String> tag) throws IOException {
 		List<FileInfo> fileinsertedlist = new ArrayList<>();
+	    FileInfo fileinserted = null;
+		HashTag hashtag = new HashTag();
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-
+		 
 		for (MultipartFile file : files) {
-
+			 
 			try {
 				fileStorage.storemultiple(files);
 				log.info("File uploaded successfully! -> filename = " + file.getOriginalFilename());
 			} catch (Exception e) {
 				log.info("Fail! -> uploaded filename: = " + file.getOriginalFilename());
 			}
+
 			FileInfo fileInfo = new FileInfo();
 			UserInfo userdetails = new UserInfo();
-			fileInfo.setFilename(file.getOriginalFilename());
-			fileInfo.setUser_id(id);
+			fileInfo.setFileName(file.getOriginalFilename());
+			fileInfo.setUserId(id);
 			userdetails.setId(id);
 			Date date = new Date(System.currentTimeMillis());
 			fileInfo.setDate(date);
 			Resource path = fileStorage.loadFile(file.getOriginalFilename());
 			System.out.println("PATH :=" + path.toString());
 			fileInfo.setUrl(path.toString());
-			FileInfo fileinserted = fileInfoRepository.save(fileInfo);
+		    fileinserted = fileInfoRepository.save(fileInfo);
 			fileinsertedlist.add(fileinserted);
+			System.out.println("fileinserted : =" + fileinserted.getId());
+
+	     }
+		
+		System.out.println("FileID :=" +fileinserted.getId());
+	 	for (String values : tag) {
+			try {
+				hashtag = new ObjectMapper().readValue(values, HashTag.class);
+				System.out.println("Values :=" + values);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if (tag != null) {
+				 //Note:- we can remove userID from the hastag entity 
+				hashtag.setUserId(id);
+				HashTag tagData = hashTagRepository.save(hashtag);
+				log.info("hastage userID := " + tagData.getUserId());
+
+				HashtagVideoMap mappingtag = new HashtagVideoMap();
+
+				log.info("ineinserted.getId() :+=" + fileinserted.getId());
+				mappingtag.setVideoId(fileinserted.getId());
+
+				log.info("tagData.getId() :+=" + tagData.getId());
+
+				mappingtag.setTagId(tagData.getId());
+				mappingtag.setMapped(true);
+
+				HashtagVideoMap mappedData = hashtagVideoMapRepository.save(mappingtag);
+				log.info("mapped Successfully");
+
 
 		}
+		} 
+		
+		
 		response = server.getSuccessResponse("Uploded Successfully", fileinsertedlist);
 
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
-
+ 
 	/***
 	 * to get the uploaded data by individual user
 	 */
@@ -393,7 +430,7 @@ public class UserDetailsController {
 	public ResponseEntity<Map<String, Object>> fetchfilesuplodedbyUser(@RequestParam("id") long id) throws IOException {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		List<FileInfo> files = (List<FileInfo>) fileInfoRepository.findByUserid(id);
+		List<FileInfo> files = (List<FileInfo>) fileInfoRepository.findByUserId(id);
 		response = server.getSuccessResponse("fetched", files);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
@@ -546,7 +583,7 @@ public class UserDetailsController {
 		UserGroupMap userGroupMap = new UserGroupMap();
 		userGroupMap.setGroupId(groupId);
 		userGroupMap.setUserId(userId);
-		userGroupMap.setUseremail(email);
+		userGroupMap.setUserEmail(email);
 		userGroupMap.setFollowinguserId(followinguserId);
 		userGroupMap.setMapped(true);
 

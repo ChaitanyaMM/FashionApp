@@ -102,6 +102,14 @@ public class BlockedData implements Serializable{
 		this.reason = reason;
 	}
 
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
 	public Date getBlocked_time() {
 		return blocked_time;
 	}
@@ -110,4 +118,5 @@ public class BlockedData implements Serializable{
 		this.blocked_time = blocked_time;
 	}
 
+	 
 }

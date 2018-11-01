@@ -20,11 +20,9 @@ public class UserGroupMap implements Serializable {
 	private long id;
 	private long userId;
 	private long groupId;
-	private String useremail;
+	private String userEmail;
 	private long followinguserId;
-
 	private boolean isMapped;
-	
 	public long getId() {
 		return id;
 	}
@@ -43,30 +41,11 @@ public class UserGroupMap implements Serializable {
 	public void setGroupId(long groupId) {
 		this.groupId = groupId;
 	}
-	
-	public String getUseremail() {
-		return useremail;
+	public String getUserEmail() {
+		return userEmail;
 	}
-	public void setUseremail(String useremail) {
-		this.useremail = useremail;
-	}
-	/*public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	public String getPhoneno() {
-		return phoneno;
-	}
-	public void setPhoneno(String phoneno) {
-		this.phoneno = phoneno;
-	}*/
-	public boolean isMapped() {
-		return isMapped;
-	}
-	public void setMapped(boolean isMapped) {
-		this.isMapped = isMapped;
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
 	}
 	public long getFollowinguserId() {
 		return followinguserId;
@@ -74,6 +53,13 @@ public class UserGroupMap implements Serializable {
 	public void setFollowinguserId(long followinguserId) {
 		this.followinguserId = followinguserId;
 	}
+	public boolean isMapped() {
+		return isMapped;
+	}
+	public void setMapped(boolean isMapped) {
+		this.isMapped = isMapped;
+	}
 	
+	 
 
 }

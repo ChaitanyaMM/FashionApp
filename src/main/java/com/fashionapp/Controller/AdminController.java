@@ -139,8 +139,8 @@ public class AdminController {
 		//Optional<FileInfo> fetchedFile =fileInfoRepository.findById(fetchedUser.get)
 		blockedDetails.setAdminId(adminid);
 		blockedDetails.setUserId(id);
-		blockedDetails.setUserName(fetchedUser.get().getUsername());
-		blockedDetails.setAdminName(fecthedAdmin.get().getUsername());
+		blockedDetails.setUserName(fetchedUser.get().getUserName());
+		blockedDetails.setAdminName(fecthedAdmin.get().getUserName());
 		//blockedDetails.setVideoId(fetchedUser.get().get);
 		//blockedDetails.setReason("invalid Data");
 		
@@ -171,13 +171,13 @@ public class AdminController {
 		}
 
 		Optional<FileInfo> fetchedFile =fileInfoRepository.findById(fileid);
-		Optional<UserInfo> fetchedUser =userDetailsRepository.findById(fetchedFile.get().getUser_id());
+		Optional<UserInfo> fetchedUser =userDetailsRepository.findById(fetchedFile.get().getUserId());
 
 		Optional<Admin>  fecthedAdmin = adminRepository.findById(adminid);
 		blockedDetails.setAdminId(adminid);
-		blockedDetails.setUserId(fetchedFile.get().getUser_id());
-		blockedDetails.setUserName(fetchedUser.get().getUsername());
-		blockedDetails.setAdminName(fecthedAdmin.get().getUsername());
+		blockedDetails.setUserId(fetchedFile.get().getUserId());
+		blockedDetails.setUserName(fetchedUser.get().getUserName());
+		blockedDetails.setAdminName(fecthedAdmin.get().getUserName());
         blockedDetails.setVideoId(fileid);
         
 		//Optional<FileInfo> fetchedFile =fileInfoRepository.findById(id);

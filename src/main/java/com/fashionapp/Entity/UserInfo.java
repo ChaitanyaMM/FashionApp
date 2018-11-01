@@ -34,9 +34,9 @@ public class UserInfo implements Serializable {
 	private String lastName;
 
 	@Column(name = "user_name")
-	private String username;
+	private String userName;
 
-	private String phoneno;
+	private String phoneNo;
 
 	private String email;
 
@@ -47,9 +47,9 @@ public class UserInfo implements Serializable {
 	@Enumerated(EnumType.ORDINAL)
 	private Gender gender;
 
-	private String profileimagename;
+	private String profileImageName;
 
-	private String profileimageurl;
+	private String profileImageUrl;
 
 	@Column(name = "creation_date")
 	private Date creationDate;
@@ -89,12 +89,20 @@ public class UserInfo implements Serializable {
 		this.lastName = lastName;
 	}
 
-	public String getPhoneno() {
-		return phoneno;
+	public String getUserName() {
+		return userName;
 	}
 
-	public void setPhoneno(String phoneno) {
-		this.phoneno = phoneno;
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPhoneNo() {
+		return phoneNo;
+	}
+
+	public void setPhoneNo(String phoneNo) {
+		this.phoneNo = phoneNo;
 	}
 
 	public String getEmail() {
@@ -125,12 +133,32 @@ public class UserInfo implements Serializable {
 		return gender;
 	}
 
-	public String getUsername() {
-		return username;
+	public void setGender(Gender gender) {
+		this.gender = gender;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public String getProfileImageName() {
+		return profileImageName;
+	}
+
+	public void setProfileImageName(String profileImageName) {
+		this.profileImageName = profileImageName;
+	}
+
+	public String getProfileImageUrl() {
+		return profileImageUrl;
+	}
+
+	public void setProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
 	}
 
 	public boolean isActive() {
@@ -141,46 +169,7 @@ public class UserInfo implements Serializable {
 		this.isActive = isActive;
 	}
 
-	public void setGender(Gender gender) {
-		this.gender = gender;
-	}
 
-	/*
-	 * public byte[] getImage() { return image; }
-	 * 
-	 * 
-	 * public void setImage(byte[] image) { this.image = image; }
-	 */
 
-	public Date getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(Date creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	/*
-	 * public String getRole() { return role; }
-	 * 
-	 * 
-	 * public void setRole(String role) { this.role = role; }
-	 */
-
-	public String getProfileimagename() {
-		return profileimagename;
-	}
-
-	public void setProfileimagename(String profileimagename) {
-		this.profileimagename = profileimagename;
-	}
-
-	public String getProfileimageurl() {
-		return profileimageurl;
-	}
-
-	public void setProfileimageurl(String profileimageurl) {
-		this.profileimageurl = profileimageurl;
-	}
 
 }

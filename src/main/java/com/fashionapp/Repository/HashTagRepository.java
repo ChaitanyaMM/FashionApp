@@ -6,4 +6,6 @@ import com.fashionapp.Entity.HashTag;
 
 public interface HashTagRepository extends CrudRepository<HashTag, Long> {
 
+	HashTag findByHashTag(String hashtag);
+
 }

@@ -1,2 +1,0 @@
-git config --global --list    (to check the credentials info)
-git config --global user.name (to check the username)

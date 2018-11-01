@@ -24,11 +24,13 @@ public class HashTag implements Serializable {
 	private long id;
 
 	@Column(name = "hashtag_name")
-	private String hashtag;
+	private String hashTag;
 
 	@Column(columnDefinition = "tinyint(1) default 3")
 	@Enumerated(value = EnumType.ORDINAL)
 	private Type type;
+	
+	private long userId;
 
 	@Column(name = "tagged_time")
 	private Date hashtage_time;
@@ -46,12 +48,12 @@ public class HashTag implements Serializable {
 		this.id = id;
 	}
 
-	public String getHashtag() {
-		return hashtag;
+	public String getHashTag() {
+		return hashTag;
 	}
 
-	public void setHashtag(String hashtag) {
-		this.hashtag = hashtag;
+	public void setHashTag(String hashTag) {
+		this.hashTag = hashTag;
 	}
 
 	public Type getType() {
@@ -62,6 +64,14 @@ public class HashTag implements Serializable {
 		this.type = type;
 	}
 
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
 	public Date getHashtage_time() {
 		return hashtage_time;
 	}
@@ -69,5 +79,7 @@ public class HashTag implements Serializable {
 	public void setHashtage_time(Date hashtage_time) {
 		this.hashtage_time = hashtage_time;
 	}
+
+	
 
 }

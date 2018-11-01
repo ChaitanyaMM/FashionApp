@@ -15,8 +15,8 @@ public class FollowersGroup {
 	private long id;
 	private long userId;
 //	private long followeruserId;
-	private String groupname;
-	private String useremail;
+	private String groupName;
+	private String userEmail;
 	private boolean isDefault;
 	
 	
@@ -39,16 +39,16 @@ public class FollowersGroup {
 		this.followeruserId = followeruserId;
 	}*/
 	public String getGroupname() {
-		return groupname;
+		return groupName;
 	}
 	public void setGroupname(String groupname) {
-		this.groupname = groupname;
+		this.groupName = groupname;
 	}
 	public String getUseremail() {
-		return useremail;
+		return userEmail;
 	}
 	public void setUseremail(String useremail) {
-		this.useremail = useremail;
+		this.userEmail = useremail;
 	}
 	public boolean isDefault() {
 		return isDefault;

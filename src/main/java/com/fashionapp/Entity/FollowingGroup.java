@@ -15,8 +15,8 @@ public class FollowingGroup {
 	private long id;
 	private long userId;
 	//private long followinguserId;
-	private String groupname;
-	private String useremail;
+	private String groupName;
+	private String userEmail;
 //	private String followiguseremail;
 	private boolean isActive;
 
@@ -45,19 +45,19 @@ public class FollowingGroup {
 //	}
 
 	public String getGroupname() {
-		return groupname;
+		return groupName;
 	}
 
 	public void setGroupname(String groupname) {
-		this.groupname = groupname;
+		this.groupName = groupname;
 	}
 
 	public String getUseremail() {
-		return useremail;
+		return userEmail;
 	}
 
 	public void setUseremail(String useremail) {
-		this.useremail = useremail;
+		this.userEmail = useremail;
 	}
 
 //	public String getFollowiguseremail() {

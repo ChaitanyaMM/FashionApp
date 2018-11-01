@@ -15,10 +15,10 @@ public class FileInfo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	private String filename;
+	private String fileName;
 	private String url;
 	private Date date;
-	private Long userid; //f.k
+	private Long userId; //f.k
 	private boolean isActive;
 	
 	public FileInfo() {
@@ -29,20 +29,20 @@ public class FileInfo {
 
 	}
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public String getFilename() {
-		return filename;
+	public String getFileName() {
+		return fileName;
 	}
 
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 	public String getUrl() {
@@ -61,13 +61,22 @@ public class FileInfo {
 		this.date = date;
 	}
 
-
-	public Long getUser_id() {
-		return userid;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setUser_id(Long user_id) {
-		this.userid = user_id;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	
 
 }

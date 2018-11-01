@@ -2,6 +2,9 @@ package com.fashionapp;
 
 import javax.annotation.Resource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,6 +19,8 @@ import com.fashionapp.filestorage.FileStorage;
 @Controller
 @ComponentScan(basePackages = "com.*")
 public class FashionAppApplication implements CommandLineRunner {
+	private static final Logger log = LogManager.getLogger(FashionAppApplication.class);
+
 	
 	@Resource
 	FileStorage filestorage;
@@ -27,7 +32,13 @@ public class FashionAppApplication implements CommandLineRunner {
 	@RequestMapping(value = "/")
 	@ResponseBody
 	public String OnStartUp() {
-
+		 
+			log.debug("Debugging log");
+			log.info("Info log");
+			log.warn("Hey, This is a warning!");
+			log.error("Oops! We have an Error. OK");
+	  
+		
 		return "FashionApp is listening !...";
 	}
 
@@ -36,5 +47,13 @@ public class FashionAppApplication implements CommandLineRunner {
 		//filestorage.deleteAll();
 		filestorage.init();
 	}
-
+	//@Override
+ 	public void run(ApplicationArguments applicationArguments) throws Exception {
+ 		log.debug("Debugging log");
+ 		log.info("Info log");
+ 		log.warn("Hey, This is a warning!");
+ 		log.error("Oops! We have an Error. OK");
+ 		log.fatal("Damn! Fatal error. Please fix me.");
+	}
+	
 }

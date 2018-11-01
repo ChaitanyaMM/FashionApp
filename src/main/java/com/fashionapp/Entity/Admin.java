@@ -25,13 +25,13 @@ public class Admin implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	private String username;
-	private String firstname;
-	private String lastname;
+	private String userName;
+	private String firstName;
+	private String lastName;
 	private String email;
-	private String password;
+	private String passWord;
 	private String description;
-	private String phoneno;
+	private String phoneNo;
 	@Column(columnDefinition = "tinyint(1) default 0")
 	private boolean isactive;
 	@Enumerated(EnumType.ORDINAL)
@@ -53,36 +53,28 @@ public class Admin implements Serializable{
 		this.id = id;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getUserName() {
+		return userName;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
-	public String getFirstname() {
-		return firstname;
+	public String getFirstName() {
+		return firstName;
 	}
 
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
-	public String getLastname() {
-		return lastname;
+	public String getLastName() {
+		return lastName;
 	}
 
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
-	}
-
-	public String getPhoneno() {
-		return phoneno;
-	}
-
-	public void setPhoneno(String phoneno) {
-		this.phoneno = phoneno;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	public String getEmail() {
@@ -93,12 +85,12 @@ public class Admin implements Serializable{
 		this.email = email;
 	}
 
-	public String getPassword() {
-		return password;
+	public String getPassWord() {
+		return passWord;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public void setPassWord(String passWord) {
+		this.passWord = passWord;
 	}
 
 	public String getDescription() {
@@ -107,6 +99,14 @@ public class Admin implements Serializable{
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getPhoneNo() {
+		return phoneNo;
+	}
+
+	public void setPhoneNo(String phoneNo) {
+		this.phoneNo = phoneNo;
 	}
 
 	public boolean isIsactive() {
@@ -133,4 +133,5 @@ public class Admin implements Serializable{
 		this.signup_time = signup_time;
 	}
 
+	 
 }
