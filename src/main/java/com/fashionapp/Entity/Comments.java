@@ -22,12 +22,11 @@ public class Comments implements Serializable{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-	private long userId;
-	private long videoId;
+	private Long id;
+	private Long userId;
+	private Long videoId;
 	private String comment;
-	private boolean isActive;
-
+ 
 	@Column(name = "added_on", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date addedOn;
@@ -69,12 +68,5 @@ public class Comments implements Serializable{
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
-	}
+ 
 }

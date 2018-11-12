@@ -33,12 +33,6 @@ public class FashionAppApplication implements CommandLineRunner {
 	@ResponseBody
 	public String OnStartUp() {
 		 
-			log.debug("Debugging log");
-			log.info("Info log");
-			log.warn("Hey, This is a warning!");
-			log.error("Oops! We have an Error. OK");
-	  
-		
 		return "FashionApp is listening !...";
 	}
 

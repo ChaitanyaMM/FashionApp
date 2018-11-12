@@ -1,8 +1,12 @@
 package com.fashionapp.Entity;
 
 public enum Status {
-	Liked,//0
-	DisLiked,//1
-	Default;//2
+	LIKED,//0
+	DISLIKED,//1
+	ACTIVE,//2
+	INACTIVE,//3
+	BLOCKED,//4
+	IDLE//5
+	
 	  
 }

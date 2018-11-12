@@ -17,13 +17,13 @@ import javax.persistence.TemporalType;
 @Table(name = "shares")
 public class Share implements Serializable{
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -6066627935775546690L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-	private long userId;
-	private long videoId;
+	private Long id;
+	private Long userId;
+	private Long videoId;
 	
 	@Column(name = "shared_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
@@ -34,27 +34,27 @@ public class Share implements Serializable{
 		shared_time = new Date();
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public long getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
-	public long getVideoId() {
+	public Long getVideoId() {
 		return videoId;
 	}
 
-	public void setVideoId(long videoId) {
+	public void setVideoId(Long videoId) {
 		this.videoId = videoId;
 	}
 

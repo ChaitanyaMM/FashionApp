@@ -9,8 +9,8 @@ import com.fashionapp.Entity.UserGroupMap;
 
 public interface UserGroupMapRepository extends CrudRepository<UserGroupMap, Long>{
 
-	UserGroupMap findByUserId(long userId);
+	List<UserGroupMap> findByUserId(Long userId);
 
-	UserGroupMap findByUserIdAndFollowinguserId(long id, long followingId);
+	UserGroupMap findByUserIdAndFollowinguserId(Long id, Long followingId);
 
 }

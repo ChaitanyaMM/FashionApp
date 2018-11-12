@@ -12,27 +12,27 @@ public class FollowingGroup {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-	private long userId;
+	private Long id;
+	private Long userId;
 	//private long followinguserId;
 	private String groupName;
 	private String userEmail;
 //	private String followiguseremail;
-	private boolean isActive;
+	
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public long getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 //
@@ -68,12 +68,6 @@ public class FollowingGroup {
 //		this.followiguseremail = followiguseremail;
 //	}
 
-	public boolean isDefault() {
-		return isActive;
-	}
-
-	public void setDefault(boolean isDefault) {
-		this.isActive = isDefault;
-	}
+	 
 
 }

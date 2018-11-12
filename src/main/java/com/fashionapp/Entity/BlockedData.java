@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,13 +15,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-
-
- /*
-  * This object is to block the user/data by the ADMIN 
-  * 
-  * */
-
+ 
+  /*This object is to block the user/data by the ADMIN */
+  
 @Entity
 @Table(name = "blocked_data")
 public class BlockedData implements Serializable{
@@ -28,14 +26,17 @@ public class BlockedData implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) 
-	private long id;
-	private long userId;
+	private Long id;
+	private Long userId;
 	private String userName;
-	private long videoId;
-	private long adminId;
-	private String adminName;
-	private String reason;
-	private boolean isActive;
+	private Long fileId;
+	private Long adminId;
+ 	private String reason;
+	
+	@Column( columnDefinition = "tinyint(1) default 3")
+	@Enumerated(value = EnumType.ORDINAL)
+	private Type type;
+	 
 	
 	@Column(name = "blocked_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
@@ -45,20 +46,20 @@ public class BlockedData implements Serializable{
 	protected void onCreate() {
 		blocked_time = new Date();
 	}
-
-	public long getId() {
+ 
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public long getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
@@ -70,28 +71,20 @@ public class BlockedData implements Serializable{
 		this.userName = userName;
 	}
 
-	public long getVideoId() {
-		return videoId;
+	public Long getFileId() {
+		return fileId;
 	}
 
-	public void setVideoId(long videoId) {
-		this.videoId = videoId;
+	public void setFileId(Long fileId) {
+		this.fileId = fileId;
 	}
 
-	public long getAdminId() {
+	public Long getAdminId() {
 		return adminId;
 	}
 
-	public void setAdminId(long adminId) {
+	public void setAdminId(Long adminId) {
 		this.adminId = adminId;
-	}
-
-	public String getAdminName() {
-		return adminName;
-	}
-
-	public void setAdminName(String adminName) {
-		this.adminName = adminName;
 	}
 
 	public String getReason() {
@@ -102,14 +95,14 @@ public class BlockedData implements Serializable{
 		this.reason = reason;
 	}
 
-	public boolean isActive() {
-		return isActive;
+	public Type getType() {
+		return type;
 	}
 
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
+	public void setType(Type type) {
+		this.type = type;
 	}
-
+ 
 	public Date getBlocked_time() {
 		return blocked_time;
 	}
@@ -118,5 +111,6 @@ public class BlockedData implements Serializable{
 		this.blocked_time = blocked_time;
 	}
 
+ 
 	 
 }

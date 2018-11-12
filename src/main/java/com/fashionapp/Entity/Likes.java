@@ -16,17 +16,17 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "likes")
 public class Likes implements Serializable{
- 
-	
-	private static final long serialVersionUID = 1L;
+   
+	private static final long serialVersionUID = -6066627935775546690L;
 
+ 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Long id;
 
-	private long userId;
+	private Long userId;
 
-	private long videoId;
+	private Long videoId;
 
 	/*@Column(columnDefinition = "tinyint(1) default 0")
 	private boolean liked;
@@ -34,7 +34,7 @@ public class Likes implements Serializable{
 	@Column(columnDefinition = "tinyint(1) default 0")
 	private boolean disLiked;*/
 	
-	@Column( columnDefinition = "tinyint(1) default 2")
+	@Column( columnDefinition = "tinyint(1) default 5")
 	@Enumerated(value = EnumType.ORDINAL)
 	private Status status;
 	

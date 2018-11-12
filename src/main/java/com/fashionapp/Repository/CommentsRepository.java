@@ -6,6 +6,6 @@ import com.fashionapp.Entity.Comments;
 
 public interface CommentsRepository extends CrudRepository<Comments, Long>{
 
-	Comments findByUserIdAndVideoId(long userId, long fileId);
+	Comments findByUserIdAndVideoId(Long userId, Long fileId);
 
 }

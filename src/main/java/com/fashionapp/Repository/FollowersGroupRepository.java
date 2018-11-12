@@ -7,6 +7,6 @@ import com.fashionapp.Entity.FollowingGroup;
 
 public interface FollowersGroupRepository extends CrudRepository<FollowersGroup,Long> {
 
-	FollowingGroup findByUserIdAndId(long userId, long id);
+	FollowingGroup findByUserIdAndId(Long userId, Long id);
 
 }

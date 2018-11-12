@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 
 public class ServerResponse<T> {
+	
 		public Map<String, Object> getEntityResponse(String message, int statusCode, boolean successful, T data) {
 			Map<String, Object> errorResponse = new HashMap<String, Object>();
 			errorResponse.put("message", message);

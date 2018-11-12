@@ -20,22 +20,22 @@ import javax.persistence.TemporalType;
 @Table(name = "admin")
 public class Admin implements Serializable{
 	
-	private static final long serialVersionUID = 1L;
-	
+ 	private static final long serialVersionUID = 5644291308701001712L;
+	 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	private String userName;
 	private String firstName;
 	private String lastName;
 	private String email;
-	private String passWord;
+	private String password;
 	private String description;
 	private String phoneNo;
-	@Column(columnDefinition = "tinyint(1) default 0")
-	private boolean isactive;
+	
 	@Enumerated(EnumType.ORDINAL)
 	private Gender gender;
+	
 	@Column(name = "signup_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date signup_time;
@@ -45,11 +45,11 @@ public class Admin implements Serializable{
 		signup_time = new Date();
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -85,12 +85,12 @@ public class Admin implements Serializable{
 		this.email = email;
 	}
 
-	public String getPassWord() {
-		return passWord;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setPassWord(String passWord) {
-		this.passWord = passWord;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getDescription() {
@@ -108,15 +108,7 @@ public class Admin implements Serializable{
 	public void setPhoneNo(String phoneNo) {
 		this.phoneNo = phoneNo;
 	}
-
-	public boolean isIsactive() {
-		return isactive;
-	}
-
-	public void setIsactive(boolean isactive) {
-		this.isactive = isactive;
-	}
-
+ 
 	public Gender getGender() {
 		return gender;
 	}
@@ -133,5 +125,6 @@ public class Admin implements Serializable{
 		this.signup_time = signup_time;
 	}
 
+	
 	 
 }

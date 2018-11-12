@@ -17,28 +17,28 @@ public class UserGroupMap implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private long id;
-	private long userId;
-	private long groupId;
+	private Long id;
+	private Long userId;
+	private Long groupId;
 	private String userEmail;
-	private long followinguserId;
-	private boolean isMapped;
-	public long getId() {
+	private Long followinguserId;
+ 
+	public Long getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
-	public long getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-	public long getGroupId() {
+	public Long getGroupId() {
 		return groupId;
 	}
-	public void setGroupId(long groupId) {
+	public void setGroupId(Long groupId) {
 		this.groupId = groupId;
 	}
 	public String getUserEmail() {
@@ -47,18 +47,13 @@ public class UserGroupMap implements Serializable {
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
 	}
-	public long getFollowinguserId() {
+	public Long getFollowinguserId() {
 		return followinguserId;
 	}
-	public void setFollowinguserId(long followinguserId) {
+	public void setFollowinguserId(Long followinguserId) {
 		this.followinguserId = followinguserId;
 	}
-	public boolean isMapped() {
-		return isMapped;
-	}
-	public void setMapped(boolean isMapped) {
-		this.isMapped = isMapped;
-	}
+	 
 	
 	 
 

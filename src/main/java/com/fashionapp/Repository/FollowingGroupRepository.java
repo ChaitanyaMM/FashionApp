@@ -8,8 +8,8 @@ import com.fashionapp.Entity.FollowingGroup;
 
 public interface FollowingGroupRepository extends CrudRepository<FollowingGroup, Long>{
 
-	Optional<FollowingGroup> findByUserId(long userId);
+	Optional<FollowingGroup> findByUserId(Long userId);
 
-	Optional<FollowingGroup> findByUserIdAndId(long userId, long id);
+	Optional<FollowingGroup> findByUserIdAndId(Long userId, Long id);
 
 }

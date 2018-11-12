@@ -24,8 +24,9 @@ public class UserInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Long id;
 
 	@Column(name = "first_name")
 	private String firstName;
@@ -54,8 +55,8 @@ public class UserInfo implements Serializable {
 	@Column(name = "creation_date")
 	private Date creationDate;
 
-	private boolean isActive;
-
+	@Column(columnDefinition = "tinyint(1) default 5")
+	private Status status;
 	@PrePersist
 	protected void onCreate() {
 		creationDate = new Date();
@@ -161,15 +162,54 @@ public class UserInfo implements Serializable {
 		this.creationDate = creationDate;
 	}
 
-	public boolean isActive() {
-		return isActive;
+	public Status getStatus() {
+		return status;
 	}
 
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
+		return result;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserInfo other = (UserInfo) obj;
+		if (creationDate == null) {
+			if (other.creationDate != null)
+				return false;
+		} else if (!creationDate.equals(other.creationDate))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (userName == null) {
+			if (other.userName != null)
+				return false;
+		} else if (!userName.equals(other.userName))
+			return false;
+		return true;
+	}
 
+	@Override
+	public String toString() {
+		return "UserInfo [id=" + id + ", userName=" + userName + ", creationDate=" + creationDate + "]";
+	}
 
 }

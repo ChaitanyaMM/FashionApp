@@ -15,38 +15,34 @@ import javax.persistence.Table;
 @Table(name = "hashtag_video_map")
 public class HashtagVideoMap implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = -6066627935775546690L;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-	private long videoId;
-	private long tagId;
-	private boolean isMapped;
-	public long getId() {
+	private Long id;
+	private Long fileId;
+	private Long tagId;
+	
+	
+	public Long getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
-	public long getVideoId() {
-		return videoId;
+	public Long getFileId() {
+		return fileId;
 	}
-	public void setVideoId(long videoId) {
-		this.videoId = videoId;
+	public void setFileId(Long fileId) {
+		this.fileId = fileId;
 	}
-	public long getTagId() {
+	public Long getTagId() {
 		return tagId;
 	}
-	public void setTagId(long tagId) {
+	public void setTagId(Long tagId) {
 		this.tagId = tagId;
 	}
-	public boolean isMapped() {
-		return isMapped;
-	}
-	public void setMapped(boolean isMapped) {
-		this.isMapped = isMapped;
-	}
+	 
 	
 	
 	

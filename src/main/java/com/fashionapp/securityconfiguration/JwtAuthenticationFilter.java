@@ -25,8 +25,8 @@ import io.jsonwebtoken.SignatureException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+	@Autowired
+   private UserDetailsService userDetailsService;
 
     @Autowired
     private JwtTokenGenerator jwtTokenGenerator;

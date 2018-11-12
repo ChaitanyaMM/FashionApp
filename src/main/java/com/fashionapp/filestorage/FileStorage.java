@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface FileStorage {
     
 	public void init();
-
 	public void store(MultipartFile file);
 	public void storeUserProfileImage(MultipartFile file);
 	public Stream<Path> loadFiles(); 
