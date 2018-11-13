@@ -25,4 +25,10 @@ public class FollowingGroupServiceImpl implements FollowingGroupService {
  		return followingGroupRepository.save(groupData);
 	}
 
+	@Override
+	public void deleteByUserId(Long userId) {
+		followingGroupRepository.deleteByUserId(userId);
+		
+	}
+
 }

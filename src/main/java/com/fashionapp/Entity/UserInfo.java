@@ -2,7 +2,6 @@ package com.fashionapp.Entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -10,11 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "user_details")
@@ -55,8 +51,7 @@ public class UserInfo implements Serializable {
 	@Column(name = "creation_date")
 	private Date creationDate;
 
-	@Column(columnDefinition = "tinyint(1) default 5")
-	private Status status;
+	 
 	@PrePersist
 	protected void onCreate() {
 		creationDate = new Date();
@@ -66,11 +61,11 @@ public class UserInfo implements Serializable {
 
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -161,15 +156,7 @@ public class UserInfo implements Serializable {
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
 	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
+ 
 	@Override
 	public int hashCode() {
 		final int prime = 31;

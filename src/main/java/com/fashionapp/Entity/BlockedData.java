@@ -25,13 +25,14 @@ public class BlockedData implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY) 
+	@GeneratedValue(strategy = GenerationType.AUTO) 
 	private Long id;
 	private Long userId;
 	private String userName;
 	private Long fileId;
 	private Long adminId;
  	private String reason;
+ 	
 	
 	@Column( columnDefinition = "tinyint(1) default 3")
 	@Enumerated(value = EnumType.ORDINAL)

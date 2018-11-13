@@ -6,4 +6,6 @@ public interface FollowersGroupService {
 
 	FollowersGroup save(FollowersGroup groupData);
 
+	void deleteByUserId(Long userId);
+
 }

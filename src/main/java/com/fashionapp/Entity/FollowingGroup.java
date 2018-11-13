@@ -14,10 +14,8 @@ public class FollowingGroup {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	private Long userId;
-	//private long followinguserId;
 	private String groupName;
 	private String userEmail;
-//	private String followiguseremail;
 	
 
 	public Long getId() {

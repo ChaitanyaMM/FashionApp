@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,10 +25,13 @@ import com.fashionapp.filestorage.FileStorage;
 import com.fashionapp.service.ProductService;
 import com.fashionapp.service.WishListService;
 import com.fashionapp.util.ServerResponse;
+
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping(value = "/api/wishlist")
+@Api(value = "wishList")
 public class WishListController {
 
 	private static final Logger log = LoggerFactory.getLogger(WishListController.class);
@@ -41,9 +45,8 @@ public class WishListController {
 	@Autowired
 	FileStorage fileStorage;
 
- 	@RequestMapping(value = "/addToWishList", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> addWishList(@RequestParam("id") Long id,
+ 	@RequestMapping(value = "/add/{userId}", method = RequestMethod.POST)
+ 	public ResponseEntity<Map<String, Object>> addWishList(@PathVariable("userId") Long userId,
 			@RequestParam("productImage") MultipartFile productImage, @RequestParam("productId") Long productId)
 			throws Exception {
 
@@ -53,7 +56,7 @@ public class WishListController {
 		
 		Optional<Products> products =  productService.findById(productId);
 		
-		wishList.setUserId(id);
+		wishList.setUserId(userId);
 		wishList.setProducts(products.get());
 		wishList.setFileName(productImage.getOriginalFilename());
 		Date date = new Date(System.currentTimeMillis());
@@ -73,12 +76,10 @@ public class WishListController {
 
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
-
- 	//To delete a product from wish list
-	@ApiOperation(value = "remove_from_WishList", response = UserInfo.class)
-	@RequestMapping(value = "/removeWishList", method = RequestMethod.DELETE)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> removeFromWishList(@RequestParam("id") Long id,
+ 
+	@ApiOperation(value = "remove_from_WishList", response = Products.class)
+	@RequestMapping(value = "/Product", method = RequestMethod.DELETE)
+	public ResponseEntity<Map<String, Object>> removeFromWishList(@RequestParam("userId") Long userId,
 			@RequestParam("productId") Long productId) throws Exception {
 
 		ServerResponse<Object> server = new ServerResponse<Object>();
@@ -86,7 +87,7 @@ public class WishListController {
 		
 		Optional<Products> products =  productService.findById(productId);
 		
-		List<WishList> wishLists = wishListService.findByProductsAndUserId(products.get() , id);
+		List<WishList> wishLists = wishListService.findByProductsAndUserId(products.get(),userId);
 		WishList wishList = wishLists.get(0);
 		
 		if (wishLists.size() > 0) {
@@ -98,14 +99,13 @@ public class WishListController {
 	}
 
 	@ApiOperation(value = "clear_WishList", response = UserInfo.class)
-	@RequestMapping(value = "/clearWishList", method = RequestMethod.DELETE)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> clearWishList(@RequestParam("id") Long id) throws Exception {
+	@RequestMapping(value = "/Delete/{userId}", method = RequestMethod.DELETE)
+	public ResponseEntity<Map<String, Object>> clearWishList(@PathVariable("userId") Long userId) throws Exception {
 
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		List<WishList> wishLists = wishListService.findByUserId(id);
+		List<WishList> wishLists = wishListService.findByUserId(userId);
 		for (WishList w : wishLists) {
 			wishListService.deleteById(w.getId());
 		}
@@ -115,14 +115,13 @@ public class WishListController {
 	}
 	
 	@ApiOperation(value = "get_WishList", response = UserInfo.class)
-	@RequestMapping(value = "/getWishList", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> getWishList(@RequestParam("id") Long id) throws Exception {
+	@RequestMapping(value = "/get/{userId}", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> getWishList(@PathVariable("userId") Long userId) throws Exception {
 
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		
-		List<WishList> wishLists = wishListService.findByUserId(id);
+		List<WishList> wishLists = wishListService.findByUserId(userId);
 		if(wishLists.size() > 0) {
 		response = server.getSuccessResponse(" Wishlist ", wishLists);
 		}else {

@@ -1,8 +1,9 @@
 package com.fashionapp.Entity;
 
 public enum Gender {
-	MALE,//0
-	FEMALE,//1
-	KIDS;//2
+	Male,//0
+	FeMale,//1
+	NotSpecified;//2
+	
 
 }

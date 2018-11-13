@@ -18,4 +18,10 @@ public class FollowersGroupServiceImpl implements FollowersGroupService {
  		return followersGroupRepository.save(groupData);
 	}
 
+	@Override
+	public void deleteByUserId(Long userId) {
+		followersGroupRepository.deleteByUserId(userId);
+		
+	}
+
 }

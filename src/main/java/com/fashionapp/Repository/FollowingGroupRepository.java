@@ -12,4 +12,6 @@ public interface FollowingGroupRepository extends CrudRepository<FollowingGroup,
 
 	Optional<FollowingGroup> findByUserIdAndId(Long userId, Long id);
 
+	void deleteByUserId(Long userId);
+
 }

@@ -16,6 +16,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @Entity
 @Table(name = "admin")
 public class Admin implements Serializable{
@@ -23,14 +25,20 @@ public class Admin implements Serializable{
  	private static final long serialVersionUID = 5644291308701001712L;
 	 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
+	@ApiModelProperty(example = "admin-userName", required = true, value = "")
 	private String userName;
+	@ApiModelProperty(example = "admin-firstName", required = true, value = "")
 	private String firstName;
 	private String lastName;
+	@ApiModelProperty(example = "email", required = true, value = "")
 	private String email;
+	@ApiModelProperty(example = "password", required = true, value = "")
 	private String password;
+	@ApiModelProperty(example = "description", required = true, value = "")
 	private String description;
+	@ApiModelProperty(example = "phoneNo", required = true, value = "")
 	private String phoneNo;
 	
 	@Enumerated(EnumType.ORDINAL)

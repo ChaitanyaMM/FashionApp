@@ -14,14 +14,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.fashionapp.Entity.Share;
 import com.fashionapp.service.ShareService;
 import com.fashionapp.util.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.swagger.annotations.Api;
  
 
-@Controller
+@RestController
 @RequestMapping(value = "/api/share")
+@Api(value = "share")
  public class ShareController {
 
 	@Autowired

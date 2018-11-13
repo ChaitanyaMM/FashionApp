@@ -14,10 +14,8 @@ public class FollowersGroup {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	private Long userId;
-//	private long followeruserId;
-	private String groupName;
+ 	private String groupName;
 	private String userEmail;
-	
 	
 	public Long getId() {
 		return id;
@@ -31,25 +29,19 @@ public class FollowersGroup {
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-	/*public long getFolloweruserId() {
-		return followeruserId;
-	}
-	public void setFolloweruserId(long followeruserId) {
-		this.followeruserId = followeruserId;
-	}*/
-	public String getGroupname() {
+ 	public String getGroupName() {
 		return groupName;
 	}
-	public void setGroupname(String groupname) {
-		this.groupName = groupname;
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
-	public String getUseremail() {
+	public String getUserEmail() {
 		return userEmail;
 	}
-	public void setUseremail(String useremail) {
-		this.userEmail = useremail;
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
 	}
-	 
-
+	
+  
 
 }

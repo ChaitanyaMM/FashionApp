@@ -8,19 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.fashionapp.Entity.BlockedUsers;
 import com.fashionapp.Entity.Comments;
 import com.fashionapp.Entity.FileInfo;
 import com.fashionapp.Entity.FollowersGroup;
@@ -38,12 +33,14 @@ import com.fashionapp.Entity.HashTag;
 import com.fashionapp.Entity.HashtagVideoMap;
 import com.fashionapp.Entity.Likes;
 import com.fashionapp.Entity.Status;
+import com.fashionapp.Entity.Type;
 import com.fashionapp.Entity.UserGroupMap;
 import com.fashionapp.Entity.UserInfo;
+import com.fashionapp.Entity.VideoStatus;
 import com.fashionapp.filestorage.FileStorage;
 import com.fashionapp.securityconfiguration.JwtTokenGenerator;
-import com.fashionapp.service.AdminService;
 import com.fashionapp.service.BlockedDataService;
+import com.fashionapp.service.BlockedUsersService;
 import com.fashionapp.service.CommentsService;
 import com.fashionapp.service.FileInfoService;
 import com.fashionapp.service.FirebaseService;
@@ -58,15 +55,15 @@ import com.fashionapp.util.EmailSender;
 import com.fashionapp.util.PasswordEncryptDecryptor;
 import com.fashionapp.util.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
- 
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
- 
 @RestController
-@RequestMapping(value = "/api/userdetails")
-@Api(value="UserDetailsController")
+@RequestMapping(value = "/api/user")
+@Api(value="user")
 public class UserDetailsController {
 	private static final Logger log = LoggerFactory.getLogger(UserDetailsController.class);
 
@@ -76,6 +73,7 @@ public class UserDetailsController {
 	private final UserService userService;
 	private final FileInfoService fileInfoService;
 	private final BlockedDataService blockedDataService;
+	private final BlockedUsersService blockedUsersService;
 	private final LikeService likeService;
 	private final CommentsService commentsService;
 	private final FileStorage fileStorage;
@@ -93,7 +91,7 @@ public class UserDetailsController {
 			FollowingGroupService followingGroupService, FollowersGroupService followersGroupService,
 			UserGroupMapService userGroupMapService, HashTagService hashTagService,
 			HashtagVideoMapService hashtagVideoMapService, JwtTokenGenerator jwtTokenGenerator, FileStorage fileStorage,
-			FirebaseService firebaseService) {
+			FirebaseService firebaseService,BlockedUsersService blockedUsersService) {
 
 		this.userService = userService;
 		this.fileInfoService = fileInfoService;
@@ -108,11 +106,9 @@ public class UserDetailsController {
 		this.jwtTokenGenerator = jwtTokenGenerator;
 		this.fileStorage = fileStorage;
 		this.firebaseService = firebaseService;
+		this.blockedUsersService=blockedUsersService;
 	}
-    
-    
-    
-    
+      
 
 	@Autowired
 	private EmailSender emailSender;
@@ -120,8 +116,12 @@ public class UserDetailsController {
 	private final static String default_url = "home/chaitanya/chaitanya-workspace/workspace/java-webapi/profileimages/male.png";
 	private final static String default_image = "male.png";
  
+	
+	
 
-	@ApiOperation(value = "signup", response = UserInfo.class)
+	@ApiOperation(value = "signup", nickname = "RegisterUser",response = UserInfo.class, notes = "user whom wanted to register the App", tags={ "user", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation") })
+	
  	@RequestMapping(value = "/signup", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> usersignup(@RequestParam("data") String data,
@@ -165,47 +165,35 @@ public class UserDetailsController {
 			userData = userService.save(userDetails);
 		}
 
-		emailSender.sendOnRegistration(userData.getUserName(), userData.getEmail());
+		//emailSender.sendOnRegistration(userData.getUserName(), userData.getEmail());
 
 		System.out.println("creating default group");
 		DefaultfollowingGroup(userDetails.getId(), userDetails.getEmail());
-		// DefaultfollowersGroup(userDetails.getId(), userDetails.getEmail());
+		DefaultfollowersGroup(userDetails.getId(), userDetails.getEmail());
 		response = server.getSuccessResponse("SignUp Successful", userData);
 
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	/*
-	 * TO:DO
-	 * 
-	 * 1.Separate logins for admin and users
-	 * 
-	 * 2. Separate login response based on logged in category if male, male related
-	 * content should occur if female ,female-content,kids ...
-	 */
-	@ApiOperation(value = "login", response = UserInfo.class)
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> getAuthtoken(@RequestBody String data) throws Exception {
+ 
+	@ApiOperation(value = "Logs user into the system", nickname = "loginUser", notes = "", response = String.class, tags = { "user", })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "successful operation", response = String.class),
+							@ApiResponse(code = 400, message = "Invalid username/password supplied") })
+	
+	@RequestMapping(value = "/login", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> getAuthtoken(@NotNull @ApiParam(value = "The email for login", required = true) @Valid @RequestParam(value = "email", required = true) String email,@NotNull @ApiParam(value = "The password for login in clear text", required = true) @Valid @RequestParam(value = "password", required = true) String password) throws Exception {
 		log.info("login calling!!..");
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		UserInfo userDetails = null;
-
-		try {
-			userDetails = new ObjectMapper().readValue(data, UserInfo.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		final UserInfo user = userService.findByEmail(userDetails.getEmail());
+		 
+		final UserInfo user = userService.findByEmail(email);
 		if (user == null) {
 			response = server.getNotFoundResponse("invalid email", null);
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
 		}
 
-		String pwd = PasswordEncryptDecryptor.encrypt(userDetails.getPassword());
+		String pwd = PasswordEncryptDecryptor.encrypt(password);
 
 		if (!pwd.equalsIgnoreCase(user.getPassword())) {
 			log.info("Invalid password");
@@ -248,23 +236,13 @@ public class UserDetailsController {
 		}
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-	/*@ApiOperation(value = "listusers", response = UserInfo.class)
- 	@RequestMapping(value = "/listusers", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> getAll(Pageable pageable) throws IOException, ParseException {
-		Map<String, Object> response = new HashMap<String, Object>();
-		ServerResponse<Object> server = new ServerResponse<Object>();
-
-		Page<UserInfo> fecthed = userService.findAll(pageable);
-		response = server.getSuccessResponse("fetched", fecthed);
-		log.info("fetched all users");
-		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-	}*/
-	
-	@ApiOperation(value = "update", response = UserInfo.class)
- 	@RequestMapping(value = "/update", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> update(@RequestParam Long id, @RequestBody String data)
+	 
+	  @ApiOperation(value = "Updated user", nickname = "updateUser",response = UserInfo.class, notes = "This can only be done by the logged in user.", tags={ "user", })
+	    @ApiResponses(value = {  @ApiResponse(code = 400, message = "Invalid user supplied"),
+	    						 @ApiResponse(code = 404, message = "User not found") })
+	  
+    @RequestMapping(value = "/user/{userId}",  produces = { "application/xml", "application/json" },  method = RequestMethod.PUT)
+ 	public ResponseEntity<Map<String, Object>> update(@ApiParam(value = "user needs to be updated",required=true) @PathVariable("userId") Long id,@ApiParam(value = "Updated user object" ,required=true ) @RequestBody String data)
 			throws IOException, ParseException {
 		UserInfo userdetails = null;
 		ServerResponse<Object> server = new ServerResponse<Object>();
@@ -276,46 +254,62 @@ public class UserDetailsController {
 		}
 
 		userdetails.setId(id);
+		UserInfo fetched =new UserInfo();
+		fetched.setId(id);
+		fetched.setDescription(userdetails.getDescription());
+		fetched.setEmail(userdetails.getEmail());
+		fetched.setFirstName(userdetails.getFirstName());
+		fetched.setLastName(userdetails.getLastName());
+ 		fetched.setPhoneNo(userdetails.getPhoneNo());
+		fetched.setUserName(userdetails.getUserName());
+		fetched.setGender(userdetails.getGender());
 		if (data == null) {
 			log.info("data is null");
 			response = server.getNotAceptableResponse("please enter the data", data);
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
 
 		} else {
-			UserInfo fecthed = userService.save(userdetails);
+			fetched = userService.save(userdetails);
 			log.info("updated successfully");
-			response = server.getSuccessResponse("Successful", fecthed);
+			response = server.getSuccessResponse("Successful", fetched);
 		}
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "find", response = UserInfo.class)
- 	@RequestMapping(value = "/find", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> findUser(@RequestParam Long id) throws IOException, ParseException {
+	@ApiOperation(value = "Find Userby ID", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class, tags={ "admin", })
+	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
+	    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
+	    						 @ApiResponse(code = 404, message = "user not found") })
+	
+ 	@RequestMapping(value = "/findUser/{userId}", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, Object>> findUser(@PathVariable("userId") Long userId) throws IOException, ParseException {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		Optional<UserInfo> fecthed = userService.findById(id);
+		Optional<UserInfo> fecthed = userService.findById(userId);
 		response = server.getSuccessResponse("Uploded Successfully", fecthed);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "delete", response = UserInfo.class)
- 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) throws IOException, ParseException {
+	 @ApiOperation(value = "Delete user", nickname = "deleteUser", notes = "This can only be done by the logged in user.", tags={ "user", })
+     @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid userId supplied"),
+    						   @ApiResponse(code = 404, message = "User not found") })  
+	 
+    @RequestMapping(value = "/delete/{userId}", method = RequestMethod.DELETE)
+	public ResponseEntity<Map<String, Object>> delete(@ApiParam(value = "user needs to be deleted",required=true) @PathVariable("userId") Long userId) throws IOException, ParseException {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		userService.deleteById(id);
-		response = server.getSuccessResponse("deleted successfully", id);
+		userService.deleteById(userId);
+		followersGroupService.deleteByUserId(userId);
+		followingGroupService.deleteByUserId(userId);
+		response = server.getSuccessResponse("deleted successfully", userId);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
 	@ApiOperation(value = "uploadvideo", response = UserInfo.class)
-	@RequestMapping(value = "/uploadvideo", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
+	@RequestMapping(value = "/postVideo", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> upload(@RequestParam("id") Long id,
-			@RequestParam("file") MultipartFile file, @RequestParam("tag") String tag) throws IOException {
+			@RequestParam("file") MultipartFile file, @RequestParam("hashTag") String hashTag) throws IOException {
  
 		FileInfo fileInfo = new FileInfo();
 		UserInfo userdetails = new UserInfo();
@@ -335,15 +329,12 @@ public class UserDetailsController {
 		fileInfo.setUrl(path.toString());
 		FileInfo fileinserted = fileInfoService.save(fileInfo);
 
-		HashTag hashtag = null;
-		try {
-			hashtag = new ObjectMapper().readValue(tag, HashTag.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (tag != null) {
+		HashTag hashtag = new HashTag();
+		 
+		if (hashTag != null) {
  			hashtag.setFileId(fileinserted.getId());
+ 			hashtag.setType(Type.USER);
+ 			hashtag.setHashTag(hashTag);
 			 
 			HashTag tagData = hashTagService.save(hashtag);
 
@@ -366,10 +357,10 @@ public class UserDetailsController {
 	}
 	
 	@ApiOperation(value = "uploadmultiple", response = UserInfo.class)
-	@RequestMapping(value = "/uploadmultiple", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
+	@RequestMapping(value = "/postVideos", method = RequestMethod.POST, headers = ("content-type=multipart/*"))
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> uplodVideos(@RequestParam("id") Long id,
-			@RequestParam("file") List<MultipartFile> files, @RequestParam("tag") List<String> tag) throws IOException {
+			@RequestParam("file") List<MultipartFile> files, @RequestParam("hashTag") List<String> hashTag) throws IOException {
 		List<FileInfo> fileinsertedlist = new ArrayList<>();
 		FileInfo fileinserted = null;
 		HashTag hashtag = new HashTag();
@@ -403,17 +394,17 @@ public class UserDetailsController {
 
 		System.out.println("FileID :=" + fileinserted.getId());
 
-		for (String values : tag) {
+		for (String values : hashTag) {
 
-			System.out.println("tag :==" + tag);
+		 System.out.println("tag :==" + hashTag);
 			try {
 				hashtag = new ObjectMapper().readValue(values, HashTag.class);
 				System.out.println("Values :=" + values);
 			} catch (Exception e) {
 				e.printStackTrace();
-			}
-			if (tag != null) {
-			    
+			} 
+			if (hashTag != null) {
+	 			hashtag.setType(Type.USER);
 				hashtag.setFileId(id);
 				HashTag tagData = hashTagService.save(hashtag);
 				log.info("hastage userID := " + tagData.getFileId());
@@ -443,45 +434,43 @@ public class UserDetailsController {
 	/***
 	 * to get the uploaded data by individual user
 	 */
-	@ApiOperation(value = "signup", response = UserInfo.class)
-	@RequestMapping(value = "/view-videos-by-userId", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> fetchfilesuplodedbyUser(@RequestParam("id") Long id) throws IOException {
+	@ApiOperation(value = "Find Videos by UserId", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class, tags={ "user", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
+    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
+    						 @ApiResponse(code = 404, message = "user not found") })
+	@RequestMapping(value = "/videos/{userId}", method = RequestMethod.GET)
+ 	public ResponseEntity<Map<String, Object>> fetchfilesuplodedbyUser(@PathVariable("userId") Long userId) throws IOException {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		List<FileInfo> files = (List<FileInfo>) fileInfoService.findByUserId(id);
+		List<FileInfo> files = (List<FileInfo>) fileInfoService.findByUserId(userId);
 		response = server.getSuccessResponse("fetched", files);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
-	/*
-	 * 
-	 * works for both like and dislike
-	 * 
-	 */
-	@ApiOperation(value = "like", response = UserInfo.class)
- 	@RequestMapping(value = "/like", method = RequestMethod.POST)
-	@ResponseBody
+ 
+	@ApiOperation(value = "like Videos", nickname = "likeVideo", notes = "Likes a video", response = UserInfo.class, tags={ "user", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
+    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
+    						 @ApiResponse(code = 404, message = "user not found") })
+	
+ 	@RequestMapping(value = "/like", method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> fileLike(@RequestParam("userId") Long userId,
-			@RequestParam("fileId") Long fileId, @RequestBody String data) throws IOException, ParseException {
+			@RequestParam("fileId") Long fileId, @RequestParam("status") int status) throws IOException, ParseException {
 		Likes likesObject = new Likes();
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		Likes likesData = null;
-		try {
-			likesObject = new ObjectMapper().readValue(data, Likes.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		 
 		likesObject.setUserId(userId);
 		likesObject.setVideoId(fileId);
+		likesObject.setStatus(VideoStatus.LIKE);
 		Likes likesObj = likeService.findByUserIdAndVideoId(userId, fileId);
-		String status = null;
-		if (likesObject.getStatus() == Status.LIKED) {
-			status = "Liked";
+		String filestatus = null;
+		if (likesObject.getStatus() == VideoStatus.LIKE) {
+			filestatus = "Liked";
 		} else {
-			status = "DisLiked";
+			filestatus = "DisLiked";
 		}
 		if (likesObj == null) {
 			likesData = likeService.save(likesObject);
@@ -491,34 +480,32 @@ public class UserDetailsController {
 			likesData = likeService.save(likesObj);
 
 		}
-		response = server.getSuccessResponse(status, likesData);
+		response = server.getSuccessResponse(filestatus, likesData);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-
-	/*
-	 * works for both comment and uncomment
-	 * 
-	 */
-	@ApiOperation(value = "comment", response = UserInfo.class)
- 	@RequestMapping(value = "/comment", method = RequestMethod.POST)
-	@ResponseBody
+ 
+	@SuppressWarnings("unused")
+	@ApiOperation(value = "Comment on a Videos", nickname = "commentOnVideo", notes = "logged in user can comment on video", response = UserInfo.class, tags={ "user", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
+    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
+    						 @ApiResponse(code = 404, message = "user not found") })
+	
+ 	@RequestMapping(value = "/comment", method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> fileComments(@RequestParam("userId") Long userId,
-			@RequestParam("fileId") Long fileId, @RequestBody String data) throws IOException, ParseException {
-		Comments comentsObject = null;
+			@RequestParam("fileId") Long fileId, @RequestParam("comment") String comment) throws IOException, ParseException {
+		Comments comentsObject = new Comments();
+		System.out.println("comment:= "+comment);
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		try {
-			comentsObject = new ObjectMapper().readValue(data, Comments.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		 
 		comentsObject.setUserId(userId);
 		comentsObject.setVideoId(fileId);
+	    comentsObject.setComment(comment);
 
-		Comments commentsData = new Comments();
+		Comments commentsData = null;
 		Comments fetchedComments = commentsService.findByUserIdAndVideoId(userId, fileId);
-		if (fetchedComments.getComment() == null || fetchedComments.getComment().isEmpty()) {
+		if (comentsObject.getComment() == null || comentsObject.getComment().isEmpty()) {
 
 			log.info("cant write empty comment!");
 			response = server.getSuccessResponse("cant write empty comment ", commentsData);
@@ -540,10 +527,12 @@ public class UserDetailsController {
 	}
 	
 	
-	@ApiOperation(value = "comment", response = UserInfo.class)
- 	@RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> deleteComment(@PathVariable Long id) throws IOException, ParseException {
+	 @ApiOperation(value = "Delete comment", nickname = "deleteComment", notes = "This can only be done by the logged in user.", tags={ "user", })
+     @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid Id supplied"),
+    						   @ApiResponse(code = 404, message = "comment not found") })  
+	 
+ 	 @RequestMapping(value = "/comment/{id}", method = RequestMethod.DELETE)
+ 	public ResponseEntity<Map<String, Object>> deleteComment(@PathVariable Long id) throws IOException, ParseException {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		commentsService.deleteById(id);
@@ -551,60 +540,40 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
- 
-	/*
-	 * works for both follow/unfollow 
-	 */
-	@ApiOperation(value = "follow", response = UserInfo.class)
+  
+	 @ApiOperation(value = "follow a User", nickname = "follow a User", notes = "logged in user can follow another user", response = UserInfo.class, tags={ "user", })
+	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
+	    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
+	    						 @ApiResponse(code = 404, message = "user not found") })
+	 
 	@RequestMapping(value = "/follow", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("id") Long id,
-			@RequestParam("followingId") Long followingId) {
+	public ResponseEntity<Map<String, Object>> followUser(@RequestParam("userId") Long userId,
+			@RequestParam("followingUserId") Long followingUserId) {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		Optional<FollowingGroup> userData = followingGroupService.findByUserId(id);
+		Optional<FollowingGroup> userData = followingGroupService.findByUserId(userId);
 
-		UserGroupMap fetchedMapData = userGroupMapService.findByUserIdAndFollowinguserId(id, followingId);
+		UserGroupMap fetchedMapData = userGroupMapService.findByUserIdAndFollowinguserId(userId, followingUserId);
 		if (fetchedMapData == null) {
-			mapUsertoUsergroup(id, followingId, userData.get().getId(), userData.get().getUseremail());
-			response = server.getSuccessResponse("following-user", followingId);
+			mapUsertoUsergroup(userId, followingUserId, userData.get().getId(), userData.get().getUseremail());
+			response = server.getSuccessResponse("following-user", followingUserId);
 
 		} else {
-			unmapuserfromUsergroup(id, followingId, userData.get().getId(), userData.get().getUseremail());
-			response = server.getSuccessResponse("un-followed user", followingId);
+			unmapuserfromUsergroup(userId, followingUserId, userData.get().getId(), userData.get().getUseremail());
+			response = server.getSuccessResponse("un-followed user", followingUserId);
 
 		}
 
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-
-	/*
-	 * @RequestMapping(value = "/unfollow", method = RequestMethod.GET)
-	 * 
-	 * @ResponseBody public ResponseEntity<Map<String, Object>>
-	 * unfollowUser(@RequestParam("id") Long id,
-	 * 
-	 * @RequestParam("followingId") Long followingId) { Map<String, Object> response
-	 * = new HashMap<String, Object>(); ServerResponse<Object> server = new
-	 * ServerResponse<Object>();
-	 * 
-	 * Optional<FollowingGroup> userData =
-	 * followingGroupService.findByUserId(id);
-	 * 
-	 * unmapuserfromUsergroup(id, followingId, userData.get().getId(),
-	 * userData.get().getUseremail()); response =
-	 * server.getSuccessResponse("unfollowed-Successfull", followingId); return new
-	 * ResponseEntity<Map<String, Object>>(response, HttpStatus.OK); }
-	 */
-	
+ 
 	@ApiOperation(value = "getall-in-group", response = UserInfo.class)
-	@RequestMapping(value = "/getall-in-group", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> findUsersInGroup(@RequestParam("id") Long id) {
+	@RequestMapping(value = "/getall-in-group/{userId}", method = RequestMethod.GET)
+ 	public ResponseEntity<Map<String, Object>> findUsersInGroup(@PathVariable("userId") Long userId) {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 
-		List<UserGroupMap> fetchedUsers = userGroupMapService.findByUserId(id);
+		List<UserGroupMap> fetchedUsers = userGroupMapService.findByUserId(userId);
 
 		response = server.getSuccessResponse("fecthed users from group", fetchedUsers);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
@@ -612,20 +581,77 @@ public class UserDetailsController {
 	}
 	
 	@ApiOperation(value = "likedlist", response = UserInfo.class)
-	@RequestMapping(value = "/likedlist", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Map<String, Object>> listoflikedfiles(@RequestParam("videoId") Long videoId) {
+	@RequestMapping(value = "/likedList/{videoId}", method = RequestMethod.GET)
+ 	public ResponseEntity<Map<String, Object>> listoflikedfiles(@PathVariable("videoId") Long videoId) {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		List<Likes> likesData = null;
-		if (Status.LIKED != null) {
+		if (VideoStatus.LIKE != null) {
 			likesData = likeService.findByVideoId(videoId);
 		}
 
 		response = server.getSuccessResponse("liked", likesData);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
+	
 
+	@ApiOperation(value = "block-user", response = UserInfo.class)
+	@RequestMapping(value = "/block", method = RequestMethod.GET)
+ 	public ResponseEntity<Map<String, Object>> blockuser(@RequestParam("userId") Long userId,
+ 			@RequestParam("blockedUserId") Long blockedUserId) throws Exception {
+
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+
+		/*
+		 * TO:DO search from list of user either from the main page or individial user
+		 * followers group and follwing group and block user
+		 * 
+		 * Take BlockedUsers group and
+		 */
+		BlockedUsers blockedUsers = new BlockedUsers();
+
+		Optional<UserInfo> blockedUserInfo = userService.findById(blockedUserId);
+		Optional<UserInfo> userInfo = userService.findById(userId);
+
+		 
+
+		BlockedUsers isBlockedUser = blockedUsersService.findByUserIdAndBlockedUserId(userId, blockedUserId);
+		if (isBlockedUser == null) {
+ 			blockedUsers.setBlockedUserId(blockedUserId);
+			blockedUsers.setUserId(userId);
+			blockedUsers.setUserName(userInfo.get().getUserName());
+			blockedUsers.setBlockedUserName(blockedUserInfo.get().getUserName());
+			BlockedUsers blockedUserData = blockedUsersService.save(blockedUsers);
+			response = server.getSuccessResponse("Blocked " + blockedUserInfo.get().getUserName() + " Successfully",
+					blockedUserData.getUserName());
+		} else {
+			 blockedUsersService.deleteById(isBlockedUser.getId());
+			 response = server.getSuccessResponse("UnBlocked User Successfully",isBlockedUser.getUserName());
+		}
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+
+	}
+
+	@ApiOperation(value = "blocked-user-list", response = UserInfo.class)
+	@RequestMapping(value = "/blockeduserslist/{userId}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> getBlockUsersList(@PathVariable("userId") Long userId) throws Exception {
+		
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		
+		List<BlockedUsers> blockedUsersList =  blockedUsersService.findByuserId(userId);
+		if(blockedUsersList.size() != 0) {
+		response = server.getSuccessResponse("Blocked Users List ", blockedUsersList);
+		}else {
+			response = server.getNotFoundResponse("no blocked users!", null);	
+		}
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+
+	}
+	
+	
 	public void mapUsertoUsergroup(Long userId, Long followinguserId, Long groupId, String email) {
 		log.info("to follow user");
 
@@ -652,34 +678,55 @@ public class UserDetailsController {
 		groupData.setUseremail(email);
 		groupData.setGroupname("following");
  		FollowingGroup usergroup = followingGroupService.save(groupData);
-		log.info("default followingGroup created for the userId := " + usergroup.getId());
+		log.info("default followingGroup created for the userId := " + usergroup.getUserId());
 	}
 
 	public void DefaultfollowersGroup(Long userId, String email) {
 		FollowersGroup groupData = new FollowersGroup();
 		groupData.setUserId(userId);
-		groupData.setUseremail(email);
-		groupData.setGroupname("followers");
+		groupData.setUserEmail(email);
+		groupData.setGroupName("followers");
  		FollowersGroup usergroup = followersGroupService.save(groupData);
-		log.info("default followersGroup created for the userId := " + usergroup.getId());
+		log.info("default followersGroup created for the userId := " + usergroup.getUserId());
 	}
+	
+	public void DefaultBlockedUsersGroup(Long userId,String userName) {
+		BlockedUsers blockedGroup =new BlockedUsers();
+		blockedGroup.setUserId(userId);
+		blockedGroup.setUserName(userName);
+		blockedGroup.setGroupName("blockedUsers");
+		BlockedUsers defaultGroup =blockedUsersService.save(blockedGroup);
+		log.info("default blockGroup created for the userId := " + defaultGroup.getUserId());
+	 }
 
- 	@RequestMapping(value = "/block", method = RequestMethod.POST)
+	/*
+	@ApiOperation(value = "unblock-user", response = UserInfo.class)
+	@RequestMapping(value = "/unblock", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Map<String, Object>> blockuser(@RequestParam("data") String username) throws Exception {
-
+	public ResponseEntity<Map<String, Object>> unBlockuser(@RequestParam("email") String email,@RequestParam("id") Long id) throws Exception {
+		
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
-
-		 
-
-		return null;
+		
+		UserInfo blockedUserInfo = userService.findByEmail(email);
+		BlockedUsers blockedUserData = blockedUsersService.findByUserIdAndBlockedUserId(id, blockedUserInfo.getId());
+		if(blockedUserData != null) {
+			blockedUsersService.deleteById(blockedUserData.getId());
+		 response = server.getSuccessResponse("UnBlocked User Successfully",blockedUserData.getUsername());
+		}else {
+			response = server.getNotFoundResponse(" ", null);
+		}
+		
+		
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
+	*/
+	
 
  	
-
- 	@RequestMapping(value = "/send", method = RequestMethod.GET, produces = "application/json")
+/*
+ 	@RequestMapping(value = "/notification", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<String> send() throws JSONException {
  
 		JSONObject body = new JSONObject();
@@ -697,7 +744,7 @@ public class UserDetailsController {
 		body.put("notification", notification);
 		body.put("data", data);
  
-/**
+*//**
 		{
 		   "notification": {
 		      "title": "JSA Notification",
@@ -710,7 +757,7 @@ public class UserDetailsController {
 		   "to": "/topics/JavaSampleApproach",
 		   "priority": "high"
 		}
-*/
+*//*
  
 		HttpEntity<String> request = new HttpEntity<>(body.toString());
  
@@ -728,5 +775,5 @@ public class UserDetailsController {
 		}
  
 		return new ResponseEntity<>("Push Notification ERROR!", HttpStatus.BAD_REQUEST);
-	}
+	}*/
 }

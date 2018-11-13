@@ -2,7 +2,6 @@ package com.fashionapp.Entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,7 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
-
+ 
 @Entity
 @Table(name = "likes")
 public class Likes implements Serializable{
@@ -27,16 +26,10 @@ public class Likes implements Serializable{
 	private Long userId;
 
 	private Long videoId;
-
-	/*@Column(columnDefinition = "tinyint(1) default 0")
-	private boolean liked;
-
-	@Column(columnDefinition = "tinyint(1) default 0")
-	private boolean disLiked;*/
-	
-	@Column( columnDefinition = "tinyint(1) default 5")
+ 
+	@Column( columnDefinition = "tinyint(1) default 2")
 	@Enumerated(value = EnumType.ORDINAL)
-	private Status status;
+	private VideoStatus status;
 	
 	@Column(name="time")
 	private Date date;
@@ -73,23 +66,7 @@ public class Likes implements Serializable{
 		this.videoId = videoId;
 	}
 
-	/*public boolean isLiked() {
-		return liked;
-	}
-
-	public void setLiked(boolean liked) {
-		this.liked = liked;
-	}
-
-	public boolean isDisLiked() {
-		return disLiked;
-	}
-
-	public void setDisLiked(boolean disLiked) {
-		this.disLiked = disLiked;
-	}*/
-
-	public Date getDate() {
+ 	public Date getDate() {
 		return date;
 	}
 
@@ -97,11 +74,11 @@ public class Likes implements Serializable{
 		this.date = date;
 	}
 
-	public Status getStatus() {
+	public VideoStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(VideoStatus status) {
 		this.status = status;
 	}
 

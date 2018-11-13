@@ -10,4 +10,6 @@ public interface FollowingGroupService {
 
 	FollowingGroup save(FollowingGroup groupData);
 
+	void deleteByUserId(Long userId);
+
 }

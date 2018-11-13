@@ -30,10 +30,5 @@ public class SwaggerConfig {
 				.build();
 	}
 
-	// Only select apis that matches the given Predicates.
-	private Predicate<String> paths() {
-		// Match all paths except /error
-		return Predicates.and(PathSelectors.regex("/api.*"), Predicates.not(PathSelectors.regex("/error.*")));
-	}
-
+ 
 }
