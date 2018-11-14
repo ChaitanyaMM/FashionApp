@@ -11,10 +11,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "user_details")
-
 public class UserInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -32,6 +35,11 @@ public class UserInfo implements Serializable {
 
 	@Column(name = "user_name")
 	private String userName;
+	
+	@Column(name = "dob")
+	@Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+	private Date dob;
 
 	private String phoneNo;
 
@@ -91,6 +99,14 @@ public class UserInfo implements Serializable {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public Date getDob() {
+		return dob;
+	}
+
+	public void setDob(Date dob) {
+		this.dob = dob;
 	}
 
 	public String getPhoneNo() {

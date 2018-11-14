@@ -8,14 +8,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +38,7 @@ import com.fashionapp.Entity.FollowingGroup;
 import com.fashionapp.Entity.HashTag;
 import com.fashionapp.Entity.HashtagVideoMap;
 import com.fashionapp.Entity.Likes;
-import com.fashionapp.Entity.Status;
-import com.fashionapp.Entity.Type;
+import com.fashionapp.Entity.Role;
 import com.fashionapp.Entity.UserGroupMap;
 import com.fashionapp.Entity.UserInfo;
 import com.fashionapp.Entity.VideoStatus;
@@ -109,7 +114,6 @@ public class UserDetailsController {
 		this.blockedUsersService=blockedUsersService;
 	}
       
-
 	@Autowired
 	private EmailSender emailSender;
 
@@ -286,9 +290,12 @@ public class UserDetailsController {
 		ServerResponse<Object> server = new ServerResponse<Object>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		Optional<UserInfo> fecthed = userService.findById(userId);
-		response = server.getSuccessResponse("Uploded Successfully", fecthed);
+		log.info("**Called!**" );
+
+ 		response = server.getSuccessResponse("Uploded Successfully", fecthed);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
+	 
 	
 	 @ApiOperation(value = "Delete user", nickname = "deleteUser", notes = "This can only be done by the logged in user.", tags={ "user", })
      @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid userId supplied"),
@@ -333,7 +340,7 @@ public class UserDetailsController {
 		 
 		if (hashTag != null) {
  			hashtag.setFileId(fileinserted.getId());
- 			hashtag.setType(Type.USER);
+ 			hashtag.setRole(Role.USER);
  			hashtag.setHashTag(hashTag);
 			 
 			HashTag tagData = hashTagService.save(hashtag);
@@ -404,7 +411,7 @@ public class UserDetailsController {
 				e.printStackTrace();
 			} 
 			if (hashTag != null) {
-	 			hashtag.setType(Type.USER);
+	 			hashtag.setRole(Role.USER);
 				hashtag.setFileId(id);
 				HashTag tagData = hashTagService.save(hashtag);
 				log.info("hastage userID := " + tagData.getFileId());
@@ -447,7 +454,29 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
+	@ApiOperation(value = "Find Video by UserId", nickname = "getUserById", notes = "Returns a single video", response = FileInfo.class, tags={ "user", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
+    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
+    						 @ApiResponse(code = 404, message = "user not found") })
+	@RequestMapping(value = "/video/{fileId}", method = RequestMethod.GET)
+ 	public ResponseEntity<Map<String, Object>> fetchVideo(@PathVariable("fileId") Long fileId) throws IOException {
+		ServerResponse<Object> server = new ServerResponse<Object>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		Optional<FileInfo>  file = fileInfoService.findById(fileId);
+		response = server.getSuccessResponse("fetched", file);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
+	}
+	
+	@GetMapping("/download/{filename}")
+	public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
+		Resource file = fileStorage.loadFile(filename);
+		return ResponseEntity.ok()
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+					.body(file);	
+	}
+	
+	 
  
 	@ApiOperation(value = "like Videos", nickname = "likeVideo", notes = "Likes a video", response = UserInfo.class, tags={ "user", })
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),

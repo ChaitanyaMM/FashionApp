@@ -36,7 +36,7 @@ public class BlockedData implements Serializable{
 	
 	@Column( columnDefinition = "tinyint(1) default 3")
 	@Enumerated(value = EnumType.ORDINAL)
-	private Type type;
+	private Role role;
 	 
 	
 	@Column(name = "blocked_time", nullable = false)
@@ -96,12 +96,12 @@ public class BlockedData implements Serializable{
 		this.reason = reason;
 	}
 
-	public Type getType() {
-		return type;
+	public Role getRole() {
+		return role;
 	}
 
-	public void setType(Type type) {
-		this.type = type;
+	public void setRole(Role type) {
+		this.role = type;
 	}
  
 	public Date getBlocked_time() {

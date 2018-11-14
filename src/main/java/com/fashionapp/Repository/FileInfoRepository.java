@@ -13,6 +13,7 @@ public interface FileInfoRepository extends CrudRepository<FileInfo, Long> {
 	List<FileInfo> findByUserId(Long id);
 
 	FileInfo findByUserIdAndDate(Long id, Date date);
-	
+
+ 	
 
 }

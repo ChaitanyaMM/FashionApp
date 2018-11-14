@@ -8,4 +8,6 @@ public interface AdminService {
 
 	Iterable<Admin> findAll();
 
+	Admin findByEmail(String email);
+
 }

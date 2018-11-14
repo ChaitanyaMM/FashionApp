@@ -1,13 +1,12 @@
 package com.fashionapp.Repository;
 
-import java.util.List;
-
+import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
-
-import com.fashionapp.Entity.Category;
 import com.fashionapp.Entity.SubCategory;
 
 public interface SubCategoryRepository extends CrudRepository<SubCategory, Long>{
 
-	List<SubCategory> findBycategory(Category category);
+	Optional<SubCategory> findBySubCategoryType(String subCategoryType);
+
+	//List<SubCategory> findBycategory(Category category);
 }

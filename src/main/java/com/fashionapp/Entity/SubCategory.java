@@ -17,24 +17,23 @@ public class SubCategory {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	private Long subCategoryId;
+	private Long id;
 	
 	@Column(name = "subcategory_type")
 	private String subCategoryType;
 	
+	private Long categoryId; //f.k
+	/*
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "categoryId", nullable = false)
-	private Category category;
-	
-	/*@OneToMany(fetch = FetchType.EAGER,mappedBy = "productId",cascade = CascadeType.ALL)
-	private Set<Products> products;*/
+	private Category category;*/
 
-	public Long getSubCategoryId() {
-		return subCategoryId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setSubCategoryId(Long subCategoryId) {
-		this.subCategoryId = subCategoryId;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getSubCategoryType() {
@@ -45,22 +44,25 @@ public class SubCategory {
 		this.subCategoryType = subCategoryType;
 	}
 
-	public Category getCategory() {
+	public Long getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	/*public Category getCategory() {
 		return category;
 	}
 
 	public void setCategory(Category category) {
 		this.category = category;
-	}
-
-	/*public Set<Products> getProducts() {
-		return products;
-	}
-
-	public void setProducts(Set<Products> products) {
-		this.products = products;
 	}*/
 	
+	 
+
+	 
 	
 
 }

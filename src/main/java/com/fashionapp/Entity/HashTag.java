@@ -28,7 +28,7 @@ public class HashTag implements Serializable {
 
 	@Column(columnDefinition = "tinyint(1) default 3")
 	@Enumerated(value = EnumType.ORDINAL)
-	private Type type;
+	private Role role;
 
 	private Long fileId;
 
@@ -56,12 +56,12 @@ public class HashTag implements Serializable {
 		this.hashTag = hashTag;
 	}
 
-	public Type getType() {
-		return type;
+	public Role getRole() {
+		return role;
 	}
 
-	public void setType(Type type) {
-		this.type = type;
+	public void setRole(Role type) {
+		this.role = type;
 	}
 
 	public Long getFileId() {
@@ -86,11 +86,11 @@ public class HashTag implements Serializable {
 
 	}
 
-	public HashTag(Long id, String hashTag, Type type, Long fileId, Date hashtage_time) {
+	public HashTag(Long id, String hashTag, Role role, Long fileId, Date hashtage_time) {
 		super();
 		this.id = id;
 		this.hashTag = hashTag;
-		this.type = type;
+		this.role = role;
 		this.fileId = fileId;
 		this.hashtage_time = hashtage_time;
 	}

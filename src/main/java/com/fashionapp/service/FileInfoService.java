@@ -12,7 +12,7 @@ public interface FileInfoService {
 	void deleteById(Long id);
 
 	List<FileInfo> findByUserId(Long id);
-
+  
 	FileInfo save(FileInfo fileInfo);
 
 }

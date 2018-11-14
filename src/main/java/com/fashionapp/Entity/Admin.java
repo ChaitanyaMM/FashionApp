@@ -16,6 +16,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity
@@ -28,21 +30,26 @@ public class Admin implements Serializable{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	@ApiModelProperty(example = "admin-userName", required = true, value = "")
+	
 	private String userName;
-	@ApiModelProperty(example = "admin-firstName", required = true, value = "")
-	private String firstName;
+ 	private String firstName;
 	private String lastName;
-	@ApiModelProperty(example = "email", required = true, value = "")
-	private String email;
-	@ApiModelProperty(example = "password", required = true, value = "")
-	private String password;
-	@ApiModelProperty(example = "description", required = true, value = "")
-	private String description;
-	@ApiModelProperty(example = "phoneNo", required = true, value = "")
-	private String phoneNo;
+ 	private String email;
+ 	private String password;
+ 	private String description;
+ 	private String phoneNo;
+	
+	@Column(name = "dob")
+	@Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+	private Date dob; 
 	
 	@Enumerated(EnumType.ORDINAL)
 	private Gender gender;
+	
+	private String profileImageName;
+
+	private String profileImageUrl;
 	
 	@Column(name = "signup_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
@@ -84,6 +91,14 @@ public class Admin implements Serializable{
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+	
+	public Date getDob() {
+		return dob;
+	}
+
+	public void setDob(Date dob) {
+		this.dob = dob;
+	}
 
 	public String getEmail() {
 		return email;
@@ -123,6 +138,22 @@ public class Admin implements Serializable{
 
 	public void setGender(Gender gender) {
 		this.gender = gender;
+	}
+
+	public String getProfileImageName() {
+		return profileImageName;
+	}
+
+	public void setProfileImageName(String profileImageName) {
+		this.profileImageName = profileImageName;
+	}
+
+	public String getProfileImageUrl() {
+		return profileImageUrl;
+	}
+
+	public void setProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
 	}
 
 	public Date getSignup_time() {

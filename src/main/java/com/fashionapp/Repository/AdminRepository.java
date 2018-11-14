@@ -6,4 +6,6 @@ import com.fashionapp.Entity.Admin;
 
 public interface AdminRepository extends CrudRepository<Admin, Long>{
 
+	Admin findByEmail(String email);
+
 }

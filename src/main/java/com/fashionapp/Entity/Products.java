@@ -1,19 +1,11 @@
 package com.fashionapp.Entity;
 
-import java.util.Set;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 @Entity
 @Table(name = "products")
 public class Products {
@@ -27,13 +19,15 @@ public class Products {
 	@Column(name = "product_type")
 	private String productType;
 	
+	@Column(name  = "subCategoryId") //f.k 
+	private Long subCategoryId;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	
+/*	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "subCategoryId", nullable = false)
-	private SubCategory subCategory;
+	private SubCategory subCategory;*/
 	
-	/*@OneToMany(fetch = FetchType.EAGER,mappedBy = "id",cascade = CascadeType.ALL)
-	private Set<WishList> wishLists;*/
+	 
 
 	public Long getProductId() {
 		return productId;
@@ -55,7 +49,17 @@ public class Products {
 	}
 
 
-	public SubCategory getSubCategory() {
+	public Long getSubCategoryId() {
+		return subCategoryId;
+	}
+
+
+	public void setSubCategoryId(Long subCategoryId) {
+		this.subCategoryId = subCategoryId;
+	}
+
+
+	/*public SubCategory getSubCategory() {
 		return subCategory;
 	}
 
@@ -63,17 +67,8 @@ public class Products {
 	public void setSubCategory(SubCategory subCategory) {
 		this.subCategory = subCategory;
 	}
-
-
-//	public Set<WishList> getWishLists() {
-//		return wishLists;
-//	}
-//
-//
-//	public void setWishLists(Set<WishList> wishLists) {
-//		this.wishLists = wishLists;
-//	}
-	
+*/
+ 
 	
 	
 
