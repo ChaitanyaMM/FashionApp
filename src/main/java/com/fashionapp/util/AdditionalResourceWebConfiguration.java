@@ -14,6 +14,7 @@ public class AdditionalResourceWebConfiguration implements WebMvcConfigurer {
   * 
   * From the respective folder we can browse the file
 	example :--http://localhost:9090/filestorage/sample.mp4
+			   http://localhost:9090/profileimages/sample.mp4
   */	
 	
 	

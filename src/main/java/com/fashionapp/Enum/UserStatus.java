@@ -1,4 +1,4 @@
-package com.fashionapp.Entity;
+package com.fashionapp.Enum;
 
 public enum UserStatus {
 	ACTIVE,//0

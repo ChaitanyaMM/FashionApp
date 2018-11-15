@@ -11,12 +11,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+
+import com.fashionapp.Enum.VideoStatus;
  
 @Entity
 @Table(name = "likes")
 public class Likes implements Serializable{
    
-	private static final long serialVersionUID = -6066627935775546690L;
+	private static final long serialVersionUID = 1L;
 
  
 	@Id

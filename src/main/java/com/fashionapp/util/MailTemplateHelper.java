@@ -29,7 +29,6 @@ public class MailTemplateHelper {
 
 
 	public String emailTemplate(Map<String, String> inputParams) {
-		System.out.println("templateEngine@3 :=" + templateEngine);
 
 		this.inputParams = inputParams;
 		if (!inputParams.containsKey("type"))

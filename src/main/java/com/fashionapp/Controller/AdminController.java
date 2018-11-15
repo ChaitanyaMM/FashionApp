@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fashionapp.Entity.Admin;
 import com.fashionapp.Entity.BlockedData;
 import com.fashionapp.Entity.FileInfo;
-import com.fashionapp.Entity.Role;
+import com.fashionapp.Enum.Role;
 import com.fashionapp.Entity.UserInfo;
 import com.fashionapp.filestorage.FileStorage;
 import com.fashionapp.service.AdminService;
@@ -36,16 +36,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
-import io.swagger.annotations.AuthorizationScope;
+
   
 @RestController
 @RequestMapping(value = "/api/admin")
-
-@Api(value = "admin")
-public class AdminController {
+  public class AdminController {
 	private static final Logger log = LoggerFactory.getLogger(AdminController.class);
-
+	ServerResponse<Object> server = new ServerResponse<Object>();
+	Map<String, Object> response = new HashMap<String, Object>();
 	private final UserService userService;
 	private final AdminService adminService;
 	private final FileInfoService fileInfoService;
@@ -63,8 +61,8 @@ public class AdminController {
 		this.fileStorage=fileStorage;
 	}
 	
-	private final static String default_url = "home/chaitanya/chaitanya-workspace/workspace/java-webapi/profileimages/male.png";
-	private final static String default_image = "male.png";
+	private final static String default_url = "home/chaitanya/chaitanya-workspace/workspace/java-webapi/profileimages/default.png";
+	private final static String default_image = "default.png";
 
 	@ApiOperation(value = "Create admin", nickname = "createAdmin",response = Admin.class, notes = "This can only be done by the logged in user.", tags={ "admin", })
                   @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation") })
@@ -75,8 +73,6 @@ public class AdminController {
 			throws Exception {
 		log.info("admin save is calling");
 		Admin admin = null;
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			admin = new ObjectMapper().readValue(data, Admin.class);
 		} catch (Exception e) {
@@ -95,7 +91,7 @@ public class AdminController {
 		if (profileImage == null || profileImage.isEmpty()) {
 			admin.setProfileImageName(default_image);
 			admin.setProfileImageUrl(default_url);
-			admin = adminService.save(admin);
+			adminData = adminService.save(admin);
 
 		} else {
 			try {
@@ -172,8 +168,6 @@ public class AdminController {
 	public ResponseEntity<Map<String, Object>> delete(@ApiParam(value = "The user that needs to be deleted",required=true) @PathVariable("userId") Long id)
 			throws IOException, ParseException {
 		log.info("deleteuser is calling");
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
 		userService.deleteById(id);
 		response = server.getSuccessResponse("deleted successfully", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
@@ -182,13 +176,12 @@ public class AdminController {
 	  @ApiOperation(value = "Delete file", nickname = "deleteFile", notes = "This can only be done by the logged in user.", tags={ "admin", })
 	     @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid filename supplied"),
 	    						   @ApiResponse(code = 404, message = "File not found") })  
-	@RequestMapping(value = "/deletefile/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/deletefile/{fileId}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> deletefile(@ApiParam(value = "The file that needs to be deleted",required=true) @PathVariable("fileId") Long fileId)
 			throws IOException, ParseException {
 		log.info("deletefile is calling");
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
+		
 		fileInfoService.deleteById(fileId);
 		response = server.getSuccessResponse("deleted successfully", "video" + fileId);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
@@ -202,8 +195,6 @@ public class AdminController {
  	public ResponseEntity<Map<String, Object>> blockuserordata(@RequestParam Long userId, @RequestParam Long adminid)
 			throws IOException, ParseException {
 		log.info("blockuser is calling");
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
 
 		BlockedData blockedDetails = new BlockedData();
 
@@ -241,8 +232,6 @@ public class AdminController {
 			throws IOException, ParseException {
 		log.info("blockfile is calling");
 
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
 
 		BlockedData blockedDetails = new BlockedData();
 		BlockedData blockeData = null;
@@ -271,29 +260,7 @@ public class AdminController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	/*@ApiOperation(value = "unblockUser ", notes = "block a User  !", response = UserInfo.class, responseContainer = "List" , tags={ "admin", })
-	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class, responseContainer = "List"),
-	    						 @ApiResponse(code = 400, message = "Invalid tag value") })
-	@RequestMapping(value = "/unblock", method = RequestMethod.GET)
- 	public ResponseEntity<Map<String, Object>> Unblockuserordata(@ApiParam(value = "userId that needs to be unblocked ",required=true) @RequestParam Long userid)
-			throws IOException, ParseException {
-		log.info("unblock is calling");
 
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
-
-		BlockedData fetchedByUser = blockedDataService.findByUserId(userid);
-		if (fetchedByUser == null) {
-			response = server.getNotAceptableResponse("No Data found", null);
-			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-
-		}
-
-		blockedDataService.deleteById(fetchedByUser.getId());
-
-		response = server.getSuccessResponse("User un-blocked", userid);
-		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-	}*/
  
 
 }

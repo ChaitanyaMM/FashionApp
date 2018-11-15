@@ -1,7 +1,6 @@
 package com.fashionapp.Controller;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -13,14 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.fashionapp.Entity.FileInfo;
 import com.fashionapp.Entity.Promotions;
-import com.fashionapp.Entity.UserInfo;
 import com.fashionapp.filestorage.FileStorage;
-import com.fashionapp.service.FileInfoService;
 import com.fashionapp.service.PromotionsService;
 import com.fashionapp.util.ServerResponse;
 
@@ -31,7 +26,6 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping(value = "/api/promotion")
-@Api(value="promotions")
 public class PromotionsController {
 	
 	

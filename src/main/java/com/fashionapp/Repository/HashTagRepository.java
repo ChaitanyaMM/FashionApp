@@ -8,4 +8,7 @@ public interface HashTagRepository extends CrudRepository<HashTag, Long> {
 
 	HashTag findByHashTag(String hashtag);
 
+	HashTag findByfileId(Long fileId);
+
+ 
 }

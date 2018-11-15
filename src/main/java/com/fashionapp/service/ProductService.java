@@ -8,4 +8,8 @@ public interface ProductService {
 
 	Optional<Products> findById(long productId);
 
+	Products save(Products product);
+
+	void deleteById(Long productId);
+
 }

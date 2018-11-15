@@ -5,10 +5,14 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.websocket.server.PathParam;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,30 +20,39 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fashionapp.Entity.Products;
 import com.fashionapp.Entity.Share;
 import com.fashionapp.service.ShareService;
 import com.fashionapp.util.ServerResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
  
 
 @RestController
 @RequestMapping(value = "/api/share")
-@Api(value = "share")
- public class ShareController {
+public class ShareController {
+	
+	private static final Logger log = LoggerFactory.getLogger(ShareController.class);
+
+	ServerResponse<Object> server = new ServerResponse<Object>();
+	Map<String, Object> response = new HashMap<String, Object>();
 
 	@Autowired
 	private ShareService shareService;
 	
-	
+	@ApiOperation(value = "ShareFIle", nickname = "ShareFIle",response = Share.class, notes = "This can only be done by the logged in user.", tags={ "share", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
+    		 				 @ApiResponse(code = 400, message = "Invalid  Data") })
  	@RequestMapping(value = "/", method = RequestMethod.POST)
-	@ResponseBody
+	 
 	public ResponseEntity<Map<String, Object>> sharefile(@RequestParam("userId") Long userId,
 			@RequestParam("fileId") Long fileId, @RequestBody String data) throws IOException, ParseException {
 		Share shareObject = new Share();
-		ServerResponse<Object> server = new ServerResponse<Object>();
-		Map<String, Object> response = new HashMap<String, Object>();
+		
 		System.out.println("sample");
 
 		try {
@@ -47,18 +60,19 @@ import io.swagger.annotations.Api;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Map<String, Object> map = new HashMap<String, Object>();
-		shareObject.setUserId(userId);
+ 		shareObject.setUserId(userId);
 		shareObject.setVideoId(fileId);
 		Share sharedData = shareService.save(shareObject);
 		response = server.getSuccessResponse("Successfully share file", sharedData);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
  	
- 	
- 	@RequestMapping(value = "/listFiles/{id}", method = RequestMethod.GET)
-	@ResponseBody
-	public List<Share> getAllFiles(@RequestParam(value="userId") Long userId) {
+	@ApiOperation(value = "ShareFIle", nickname = "ShareFIle",response = Share.class, notes = "This can only be done by the logged in user.", tags={ "share", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
+    		 				 @ApiResponse(code = 400, message = "Invalid  Data") })
+ 	@RequestMapping(value = "/sharedList/{userId}", method = RequestMethod.GET)
+	 
+	public List<Share> getAllFiles(@PathParam(value="userId") Long userId) {
 	    return shareService.findByUserId(userId);
 	}
  	

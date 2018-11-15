@@ -1,10 +1,8 @@
 package com.fashionapp;
 
 import javax.annotation.Resource;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,14 +38,8 @@ public class FashionAppApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		//filestorage.deleteAll();
 		filestorage.init();
+		log.info("file Storage has been initialized!.");
 	}
-	//@Override
- 	public void run(ApplicationArguments applicationArguments) throws Exception {
- 		log.debug("Debugging log");
- 		log.info("Info log");
- 		log.warn("Hey, This is a warning!");
- 		log.error("Oops! We have an Error. OK");
- 		log.fatal("Damn! Fatal error. Please fix me.");
-	}
+   
 	
 }

@@ -18,4 +18,11 @@ public class HashTagServiceImpl implements HashTagService {
  		return hashTagRepository.save(hashtag);
 	}
 
+	@Override
+	public HashTag findByfileId(Long fileId) {
+ 		return hashTagRepository.findByfileId(fileId);
+	}
+
+	 
+
 }

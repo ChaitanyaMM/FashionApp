@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fashionapp.Enum.Gender;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity

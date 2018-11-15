@@ -5,7 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
+	
+	/*creates the default following group for individual user*/
 @Entity
 @Table(name = "following_group")
 public class FollowingGroup {

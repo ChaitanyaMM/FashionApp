@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name="promotions")
 public class Promotions implements Serializable{
 
-	private static final long serialVersionUID = -6066627935775546690L;
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;

@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/*creates the default followers group for individual user*/
+
 @Entity
 @Table(name = "followers_group")
 public class FollowersGroup {

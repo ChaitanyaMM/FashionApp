@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
+import com.fashionapp.Enum.Role;
+
 @Entity
 @Table(name = "hashtags")
 public class HashTag implements Serializable {

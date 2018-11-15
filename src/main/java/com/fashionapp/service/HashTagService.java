@@ -6,4 +6,6 @@ public interface HashTagService {
 
 	HashTag save(HashTag hashtag);
 
+	HashTag findByfileId(Long fileId);
+
 }

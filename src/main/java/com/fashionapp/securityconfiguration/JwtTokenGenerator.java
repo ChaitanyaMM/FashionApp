@@ -1,7 +1,4 @@
 package com.fashionapp.securityconfiguration;
-
-
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
@@ -17,11 +14,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-
 @Component
 public class JwtTokenGenerator  implements Serializable { 
 	
-	  public String getUsernameFromToken(String token) {
+	private static final long serialVersionUID = -6914680628799247127L;
+
+	public String getUsernameFromToken(String token) {
 	        return getClaimFromToken(token, Claims::getSubject);
 	    }
 
@@ -57,7 +55,7 @@ public class JwtTokenGenerator  implements Serializable {
 
 	        return Jwts.builder()
 	                .setClaims(claims)
-	                .setIssuer("http://devglan.com")
+	                .setIssuer("http://google.com")
 	                .setIssuedAt(new Date(System.currentTimeMillis()))
 	                .setExpiration(new Date(System.currentTimeMillis() + JWtConstants.ACCESS_TOKEN_VALIDITY_SECONDS*1000))
 	                .signWith(SignatureAlgorithm.HS256, JWtConstants.SIGNING_KEY)

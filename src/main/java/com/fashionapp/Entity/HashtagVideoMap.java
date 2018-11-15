@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Table(name = "hashtag_video_map")
 public class HashtagVideoMap implements Serializable {
 
-	private static final long serialVersionUID = -6066627935775546690L;
+	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

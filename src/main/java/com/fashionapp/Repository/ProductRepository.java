@@ -8,6 +8,6 @@ import com.fashionapp.Entity.Products;
 
 public interface ProductRepository extends CrudRepository<Products, Long>{
 
-	Optional<Products> findByProductType(String productType);
+	//Optional<Products> findByProductType(String productType);
 
 }

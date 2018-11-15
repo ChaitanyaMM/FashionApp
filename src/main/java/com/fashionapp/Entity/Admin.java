@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fashionapp.Enum.Gender;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -23,9 +24,8 @@ import io.swagger.annotations.ApiModelProperty;
 @Entity
 @Table(name = "admin")
 public class Admin implements Serializable{
-	
- 	private static final long serialVersionUID = 5644291308701001712L;
 	 
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;

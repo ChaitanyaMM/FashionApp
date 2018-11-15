@@ -17,7 +17,7 @@ import javax.persistence.TemporalType;
 @Table(name = "shares")
 public class Share implements Serializable{
 
-	private static final long serialVersionUID = -6066627935775546690L;
+	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

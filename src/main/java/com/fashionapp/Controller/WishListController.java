@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.fashionapp.Entity.Admin;
 import com.fashionapp.Entity.Products;
 import com.fashionapp.Entity.UserInfo;
 import com.fashionapp.Entity.WishList;
@@ -33,11 +35,12 @@ import com.fashionapp.util.ServerResponse;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping(value = "/api/wishlist")
-@Api(value = "wishList")
-public class WishListController {
+ public class WishListController {
 
 	private static final Logger log = LoggerFactory.getLogger(WishListController.class);
 
@@ -49,6 +52,10 @@ public class WishListController {
 	
 	@Autowired
 	FileStorage fileStorage;
+
+ 	@ApiOperation(value = "addProducttoWishList", nickname = "addProducttoWishList",response = Admin.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
+    		 					@ApiResponse(code = 400, message = "Invalid  Data") })
 
  	@RequestMapping(value = "/add/{userId}", method = RequestMethod.POST)
  	public ResponseEntity<Map<String, Object>> addWishList(@PathVariable("userId") Long userId,
@@ -77,12 +84,16 @@ public class WishListController {
 		wishList.setUrl(path.toString());
 
 		wishListService.save(wishList);
-		response = server.getSuccessResponse(products.get().getProductType()+" added to wishList", products.get().getProductType());
+		response=server.getSuccessResponse("added to wishList", products);
+		//response = server.getSuccessResponse(products.get().getProductType()+" added to wishList", products.get().getProductType());
 
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
  
-	@ApiOperation(value = "remove_from_WishList", response = Products.class)
+ 	@ApiOperation(value = "removeFromWishList", nickname = "addProducttoWishList",response = Products.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
+    		 					@ApiResponse(code = 400, message = "Invalid  Data") })
+ 	
 	@RequestMapping(value = "/Product", method = RequestMethod.DELETE)
 	public ResponseEntity<Map<String, Object>> removeFromWishList(@RequestParam("userId") Long userId,
 			@RequestParam("productId") Long productId) throws Exception {
@@ -97,14 +108,19 @@ public class WishListController {
 		
 		if (wishLists.size() > 0) {
 			wishListService.deleteById(wishLists.get(0).getId());
-			response = server.getSuccessResponse( wishList.getProducts().getProductType()+" removed Successfully", wishList.getProducts().getProductType());
+			response=server.getSuccessResponse("added to wishList", products);
+
+			//response = server.getSuccessResponse( wishList.getProducts().getProductType()+" removed Successfully", wishList.getProducts().getProductType());
 		}
 		
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	@ApiOperation(value = "clear_WishList", response = UserInfo.class)
-	@RequestMapping(value = "/Delete/{userId}", method = RequestMethod.DELETE)
+ 	@ApiOperation(value = "Delete", nickname = "Delete",response = Products.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
+    		 					@ApiResponse(code = 400, message = "Invalid  Data") })
+ 	
+ 	@RequestMapping(value = "/Delete/{userId}", method = RequestMethod.DELETE)
 	public ResponseEntity<Map<String, Object>> clearWishList(@PathVariable("userId") Long userId) throws Exception {
 
 		ServerResponse<Object> server = new ServerResponse<Object>();
@@ -119,8 +135,10 @@ public class WishListController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
-	@ApiOperation(value = "get_WishList", response = UserInfo.class)
-	@RequestMapping(value = "/get/{userId}", method = RequestMethod.GET)
+ 	@ApiOperation(value = "GetWishListData", nickname = "GetWishListData",response = Products.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
+    		 				 @ApiResponse(code = 400, message = "Invalid  Data") })
+	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> getWishList(@PathVariable("userId") Long userId) throws Exception {
 
 		ServerResponse<Object> server = new ServerResponse<Object>();
