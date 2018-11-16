@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+
+/**
+ * To:DO Send Mails and reads templates through MailTempateHelper.java
+ * */
 @Service
 public class EmailSender {
 
@@ -35,7 +39,7 @@ public class EmailSender {
 		}
 		mailsender.send(msg);
 	}
-  
+   
 	public void sendOnRegistration(String userName, String mailId) throws MessagingException {
  
 		if (mailId == null || mailId.isEmpty())
@@ -44,7 +48,8 @@ public class EmailSender {
 		Map<String, String> inputParams = new HashMap<String, String>();
 		inputParams.put("type", "" + EmailConstants.EMAIL_ABOUT_CREATION);
 		inputParams.put("userName", userName);
- 		String htmlBody =MailTemplateHelper.getInstance().emailTemplate(inputParams);
+		//String htmlBody = EmailTemplateHelper.getInstance().emailTemplate(inputParams);
+ 		String htmlBody =sendRegistrationMail(userName);
 		System.out.println("htmlBody := "+htmlBody);
 		if (htmlBody == null || htmlBody.isEmpty())
 			return;
@@ -57,9 +62,7 @@ public class EmailSender {
 	  
 
 	private String sendRegistrationMail(String userName) {
-		System.out.println("templateEngine :=" + templateEngine);
-
-		Context ctx = new Context();
+ 		Context ctx = new Context();
 		ctx.setVariable("userName", userName);
  		String htmlbody = templateEngine.process("signup", ctx);
  		

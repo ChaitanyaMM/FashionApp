@@ -53,7 +53,7 @@ import io.swagger.annotations.ApiResponses;
 	@Autowired
 	FileStorage fileStorage;
 
- 	@ApiOperation(value = "addProducttoWishList", nickname = "addProducttoWishList",response = Admin.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+ 	@ApiOperation(value = "addProducttoWishList", nickname = "addProducttoWishList",response = Admin.class, notes = "This can only be done by the logged in user.")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
     		 					@ApiResponse(code = 400, message = "Invalid  Data") })
 
@@ -90,7 +90,7 @@ import io.swagger.annotations.ApiResponses;
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
  
- 	@ApiOperation(value = "removeFromWishList", nickname = "addProducttoWishList",response = Products.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+ 	@ApiOperation(value = "removeFromWishList", nickname = "addProducttoWishList",response = Products.class, notes = "This can only be done by the logged in user.")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
     		 					@ApiResponse(code = 400, message = "Invalid  Data") })
  	
@@ -116,7 +116,7 @@ import io.swagger.annotations.ApiResponses;
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
- 	@ApiOperation(value = "Delete", nickname = "Delete",response = Products.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+ 	@ApiOperation(value = "Delete", nickname = "Delete",response = Products.class, notes = "This can only be done by the logged in user.")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
     		 					@ApiResponse(code = 400, message = "Invalid  Data") })
  	
@@ -135,7 +135,7 @@ import io.swagger.annotations.ApiResponses;
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 	
- 	@ApiOperation(value = "GetWishListData", nickname = "GetWishListData",response = Products.class, notes = "This can only be done by the logged in user.", tags={ "wishList", })
+ 	@ApiOperation(value = "GetWishListData", nickname = "GetWishListData",response = Products.class, notes = "This can only be done by the logged in user.")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
     		 				 @ApiResponse(code = 400, message = "Invalid  Data") })
 	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)

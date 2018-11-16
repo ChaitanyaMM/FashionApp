@@ -13,8 +13,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fashionapp.Enum.Brand;
 import com.fashionapp.Enum.CategoryType;
+import com.fashionapp.Enum.Colour;
+import com.fashionapp.Enum.Partners;
 import com.fashionapp.Enum.ProductTypes;
+import com.fashionapp.Enum.Size;
 
 @Entity
 @Table(name ="products")
@@ -28,24 +32,26 @@ public class Products implements Serializable{
 	private String name;
 	private String productImage;
 	private String productImageUrl;
-	private String partnerName;
+	private Partners partnerName;
 	private String partnerUrl;
 	private String price;
-	private String brand;
-	private String size;
+	private Brand brand;
+	private Size size;
+	private Colour colour;
 	
 	@Column( columnDefinition = "tinyint(1) default 0")
 	@Enumerated(value = EnumType.ORDINAL)
-	private ProductTypes ProductType;
+	private ProductTypes productType;
 	
 	@Column( columnDefinition = "tinyint(1) default 0")
 	@Enumerated(value = EnumType.ORDINAL)
 	private CategoryType categoryType;
 	
-	
+
 	/*@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "id", nullable = false)
 	private ProductCategory productCategory;*/
+
 
 	public Long getId() {
 		return id;
@@ -79,11 +85,11 @@ public class Products implements Serializable{
 		this.productImageUrl = productImageUrl;
 	}
 
-	public String getPartnerName() {
+	public Partners getPartnerName() {
 		return partnerName;
 	}
 
-	public void setPartnerName(String partnerName) {
+	public void setPartnerName(Partners partnerName) {
 		this.partnerName = partnerName;
 	}
 
@@ -103,28 +109,36 @@ public class Products implements Serializable{
 		this.price = price;
 	}
 
-	public String getBrand() {
+	public Brand getBrand() {
 		return brand;
 	}
 
-	public void setBrand(String brand) {
+	public void setBrand(Brand brand) {
 		this.brand = brand;
 	}
 
-	public String getSize() {
+	public Size getSize() {
 		return size;
 	}
 
-	public void setSize(String size) {
+	public void setSize(Size size) {
 		this.size = size;
 	}
 
+	public Colour getColour() {
+		return colour;
+	}
+
+	public void setColour(Colour colour) {
+		this.colour = colour;
+	}
+
 	public ProductTypes getProductType() {
-		return ProductType;
+		return productType;
 	}
 
 	public void setProductType(ProductTypes productType) {
-		ProductType = productType;
+		this.productType = productType;
 	}
 
 	public CategoryType getCategoryType() {
@@ -134,19 +148,8 @@ public class Products implements Serializable{
 	public void setCategoryType(CategoryType categoryType) {
 		this.categoryType = categoryType;
 	}
-
- 
-
-
-	/*public ProductCategory getProductCategory() {
-		return productCategory;
-	}
-
-
-
-	public void setProductCategory(ProductCategory productCategory) {
-		this.productCategory = productCategory;
-	}*/
 	
+	
+	 
 
 }

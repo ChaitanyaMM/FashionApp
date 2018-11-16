@@ -65,6 +65,7 @@ com/fashionapp/Repository/CommentsRepository.class
 com/fashionapp/Controller/WishListController.class
 com/fashionapp/util/FireBaseResponse.class
 com/fashionapp/service/PromotionsService.class
+com/fashionapp/Entity/ChangePassword.class
 com/fashionapp/Repository/HashtagVideoMapRepository.class
 com/fashionapp/service/UserService.class
 com/fashionapp/Repository/CategoryRepository.class

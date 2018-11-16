@@ -54,12 +54,12 @@ public class ProductController {
 
 	}
 
-	@ApiOperation(value = "addProduct", nickname = "addProduct", notes = "", tags={ "product", })
+	@ApiOperation(value = "addProduct", nickname = "addProduct", notes = "")
 	@ApiResponses(value = {   @ApiResponse(code = 200, message = "successful operation"),
-			                  @ApiResponse(code = 400, message = "Invalid productId supplied"),
-							  @ApiResponse(code = 404, message = "productId not found") })  
- 	@RequestMapping(value = "/{type}", method = RequestMethod.POST)
- 	public ResponseEntity<Map<String, Object>> CreateProduct(@RequestParam("data") String data,@PathVariable(value = "type") int type,
+			                  @ApiResponse(code = 400, message = "Invalid Data"),
+							  @ApiResponse(code = 404, message = "Not Found") })  
+ 	@RequestMapping(value = "/", method = RequestMethod.POST)
+ 	public ResponseEntity<Map<String, Object>> CreateProduct(@RequestParam("data") String data,
 			 @RequestParam(value = "file", required = false) MultipartFile productImage) {
 
 		Products inserted = new Products();
@@ -70,12 +70,7 @@ public class ProductController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		if (type == 1) {
-
-			product.setProductType(ProductTypes.TSHIRTSANDPOLOS);
-		}
-
+ 
 		if (productImage == null || productImage.isEmpty()) {
 			product.setProductImage(default_image);
 			product.setProductImageUrl(default_url);
@@ -101,7 +96,7 @@ public class ProductController {
 
 	}
     
-        @ApiOperation(value = "Find productby ID", nickname = "getProductById", notes = "Returns a single product", response = Products.class, tags={ "product", })
+        @ApiOperation(value = "Find productby ID", nickname = "getProductById", notes = "Returns a single product", response = Products.class)
         @ApiResponses(value = { @ApiResponse(code = 200, message = "successful operation", response = Products.class),
     						    @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						    @ApiResponse(code = 404, message = "product not found") })
@@ -115,7 +110,7 @@ public class ProductController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 		}
 		
-		@ApiOperation(value = "Delete product", nickname = "deleteProduct", notes = "", tags={ "product", })
+		@ApiOperation(value = "Delete product", nickname = "deleteProduct", notes = "")
 		@ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid productId supplied"),
 								  @ApiResponse(code = 404, message = "productId not found") })  
 		

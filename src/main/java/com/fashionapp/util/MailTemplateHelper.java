@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
- 
+ /**To :Do  this class is to read the templates and send mails accordingly*/
+
 public class MailTemplateHelper {
 
 

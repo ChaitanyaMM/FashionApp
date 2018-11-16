@@ -47,7 +47,7 @@ public class PromotionsController {
 
 
 
-	@ApiOperation(value = "pushed promotion videos or images in the App", nickname = "promotions", notes = "", response = String.class, tags = { "promotions", })
+	@ApiOperation(value = "pushed promotion videos or images in the App", nickname = "promotions", notes = "", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "successful operation", response = String.class),
 							@ApiResponse(code = 400, message = "Invalid file") })
 	 

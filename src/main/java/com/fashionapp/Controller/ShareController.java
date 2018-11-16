@@ -44,7 +44,7 @@ public class ShareController {
 	@Autowired
 	private ShareService shareService;
 	
-	@ApiOperation(value = "ShareFIle", nickname = "ShareFIle",response = Share.class, notes = "This can only be done by the logged in user.", tags={ "share", })
+	@ApiOperation(value = "ShareFIle", nickname = "ShareFIle",response = Share.class, notes = "This can only be done by the logged in user.")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
     		 				 @ApiResponse(code = 400, message = "Invalid  Data") })
  	@RequestMapping(value = "/", method = RequestMethod.POST)
@@ -67,7 +67,7 @@ public class ShareController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
  	
-	@ApiOperation(value = "ShareFIle", nickname = "ShareFIle",response = Share.class, notes = "This can only be done by the logged in user.", tags={ "share", })
+	@ApiOperation(value = "ShareFIle", nickname = "ShareFIle",response = Share.class, notes = "This can only be done by the logged in user.")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation"),
     		 				 @ApiResponse(code = 400, message = "Invalid  Data") })
  	@RequestMapping(value = "/sharedList/{userId}", method = RequestMethod.GET)

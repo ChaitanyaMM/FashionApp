@@ -33,7 +33,7 @@ public class NotificationController {
 
    /*Sends Push notication using firebase Key 
 	   to android and ios respectively*/
-	@ApiOperation(value = "Send Notification", nickname = "Notification",response = String.class, notes = "when evenet triggered it sends notification", tags={ "notification", })
+	@ApiOperation(value = "Send Notification", nickname = "Notification",response = String.class, notes = "when evenet triggered it sends notification")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation") })
 
 	@RequestMapping(value = "/send", method = RequestMethod.GET, produces = "application/json")

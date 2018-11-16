@@ -117,9 +117,10 @@ public class UserDetailsController {
 	private final static String default_image = "male.png";
  
 	
-	
+	/*To :DO 
+	 Need to send mail after signUp*/
 
-	@ApiOperation(value = "signup", nickname = "RegisterUser",response = UserInfo.class, notes = "user whom wanted to register the App", tags={ "user", })
+	@ApiOperation(value = "signup", nickname = "RegisterUser",response = UserInfo.class, notes = "user whom wanted to register the App")
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation") })
 	
  	@RequestMapping(value = "/signup", method = RequestMethod.POST)
@@ -174,7 +175,7 @@ public class UserDetailsController {
 	}
 
  
-	@ApiOperation(value = "Logs user into the system", nickname = "loginUser", notes = "", response = String.class, tags = { "user", })
+	@ApiOperation(value = "Logs user into the system", nickname = "loginUser", notes = "", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "successful operation", response = String.class),
 							@ApiResponse(code = 400, message = "Invalid username/password supplied") })
 	
@@ -205,7 +206,12 @@ public class UserDetailsController {
 
 	}
 	
-	@ApiOperation(value = "forgotpwd", nickname = "forgotpwd",response = UserInfo.class, notes = "This can only be done by the logged in user.", tags={ "user", })
+/*	To:DO
+	  
+	   As per the design for forgot pw need to generate an OTP to the registered mobile for the need to configure SMS gateway
+	   OTP will be generated from the RandomNumber.java*/
+	
+	@ApiOperation(value = "forgotpwd", nickname = "forgotpwd",response = UserInfo.class, notes = "This can only be done by the logged in user.")
  	@RequestMapping(value = "/forgotpwd", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> userforgotpwd(@RequestBody String data) throws Exception {
@@ -220,8 +226,6 @@ public class UserDetailsController {
 		UserInfo userInfoObj = userService.findByEmail(userInfo.getEmail());
 		if (userInfoObj != null) {
 			userInfoObj.setPassword(PasswordEncryptDecryptor.encrypt(userInfo.getPassword()));
-			Date date = new Date(System.currentTimeMillis());
-			userInfoObj.setCreationDate(date);
 		     userService.save(userInfoObj);
 			response = server.getSuccessResponse("Password changed Successfully..", userInfoObj.getEmail());
 			// sender.sendmail(userInfoObj.getEmail(), "Changed Password Successfully");
@@ -230,54 +234,50 @@ public class UserDetailsController {
 		}
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
-	 
-	/*@ApiOperation(value = "changePwd", nickname = "changePwd",response = UserInfo.class, notes = "This can only be done by the logged in user.", tags={ "user", })
-  	@RequestMapping(value = "/changePwd", method = RequestMethod.GET)
-	
-	public ResponseEntity<Map<String, Object>> userchangePwd(@PathVariable String password,
-			@PathVariable String conformPassword,@PathVariable String email) throws Exception {
-	 
- 		UserInfo userInfo = null;
-		 
+
+	@ApiOperation(value = "changePwd", nickname = "changePwd", response = UserInfo.class, notes = "This can only be done by the logged in user.")
+	@RequestMapping(value = "/changePwd", method = RequestMethod.PUT)
+
+	public ResponseEntity<Map<String, Object>> userchangePwd(@RequestParam(value = "email") String email,
+			@PathVariable(value = "password") String password,
+			@PathVariable(value = "conformpassword") String conformPassword) throws Exception {
+		UserInfo userInfo = null;
+
 		UserInfo userInfoObj = userService.findByEmail(email);
 
 		if (userInfoObj != null) {
 
-			if (changepwd.getPassword() == null || changepwd.getPassword() == ""
-					|| changepwd.getConformPassword() == null || changepwd.getConformPassword() == "") {
+			if (password == null || password == "" || conformPassword == null || conformPassword == "") {
 				log.info("please enter password");
 				response = server.getNotFoundResponse("enter password", null);
 				return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 			}
 
-			if (changepwd.getPassword().length() != changepwd.getConformPassword().length()) {
+			if (password.length() != conformPassword.length()) {
 				log.info("please enter password");
 				response = server.getNotFoundResponse("check password enterd", null);
 				return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 			}
 
-			if (changepwd.getPassword().equals(changepwd.getConformPassword())) {
-				userInfoObj.setPassword(PasswordEncryptDecryptor.encrypt(changepwd.getPassword()));
+			if (password.equals(conformPassword)) {
+				userInfoObj.setPassword(PasswordEncryptDecryptor.encrypt(password));
 			}
 			Date date = new Date(System.currentTimeMillis());
 			userInfoObj.setCreationDate(date);
 			UserInfo userData = userService.save(userInfoObj);
-
 			// emailSender.sendOnchangepassword(userInfoObj.getEmail());
 			response = server.getSuccessResponse("Password changed Successfully..", userData);
 		} else {
 			response = server.getNotFoundResponse(userInfo.getUserName() + " is not registered", null);
 		}
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-	}*/
 
-	 
-	
-	  @ApiOperation(value = "Updated user", nickname = "updateUser",response = UserInfo.class, notes = "This can only be done by the logged in user.", tags={ "user", })
+	}
+	  @ApiOperation(value = "Updated user", nickname = "updateUser",response = UserInfo.class, notes = "This can only be done by the logged in user.")
 	    @ApiResponses(value = {  @ApiResponse(code = 400, message = "Invalid user supplied"),
-	    						 @ApiResponse(code = 404, message = "User not found") })
+	    						 @ApiResponse(code = 404, message = "Not found") })
 	  
-    @RequestMapping(value = "/user/{userId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{userId}", method = RequestMethod.PUT)
  	public ResponseEntity<Map<String, Object>> update(@ApiParam(value = "user needs to be updated",required=true) @PathVariable("userId") Long id,@ApiParam(value = "Updated user object" ,required=true ) @RequestBody String data)
 			throws IOException, ParseException {
 		Optional<UserInfo> updatedetails = userService.findById(id);
@@ -304,40 +304,52 @@ public class UserDetailsController {
 
 	}
 	  
-	  @ApiOperation(value = "Updated Image", nickname = "updateImage",response = UserInfo.class, notes = "This can only be done by the logged in user.", tags={ "user", })
-	    @ApiResponses(value = {  @ApiResponse(code = 400, message = "Invalid user supplied"),
-	    						 @ApiResponse(code = 404, message = "User not found") })		
-	    @RequestMapping(value = "/update-image/{userId}", method = RequestMethod.POST)
- 		public ResponseEntity<Map<String, Object>> updateprofileimage(@PathVariable(value="userId") Long userId, @RequestParam("file") MultipartFile profileImage) throws IOException, ParseException {
-			Optional<UserInfo> user = userService.findById(userId);
-			/*To:DO write 
-			 * validation*/
-			UserInfo userDetails = new UserInfo();
-			userDetails.setId(userId);
-			 
-			try {
-				fileStorage.storeUserProfileImage(profileImage);
-				log.info("File uploaded successfully! -> filename = " + profileImage.getOriginalFilename());
-			} catch (Exception e) {
-				log.info("Fail! -> uploaded filename: = " + profileImage.getOriginalFilename());
-			}
+	@ApiOperation(value = "Updated Image", nickname = "updateImage", response = UserInfo.class, notes = "This can only be done by the logged in user.")
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Invalid user supplied"),
+							@ApiResponse(code = 404, message = "User not found") })
+	@RequestMapping(value = "/image/{userId}", method = RequestMethod.POST)
+	public ResponseEntity<Map<String, Object>> updateprofileimage(@PathVariable(value = "userId") Long userId,
+			@RequestParam("file") MultipartFile profileImage) throws IOException, ParseException {
+		Optional<UserInfo> user = userService.findById(userId);
 
-			Resource path = fileStorage.loadprofileImage(profileImage.getOriginalFilename());
-			System.out.println("PATH :=" + path.toString());
-			userDetails.setProfileImageName(profileImage.getOriginalFilename());
-			userDetails.setProfileImageUrl(path.toString());
-			UserInfo updatedimage = userService.save(userDetails);
-			response = server.getSuccessResponse("Successfull", updatedimage);
-			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-		}  
+		if (user == null) {
+			response = server.getNotAceptableResponse("No data found with this UserId", userId);
+		}
+		UserInfo userDetails = new UserInfo();
+		userDetails.setId(userId);
+		userDetails.setDescription(user.get().getDescription());
+		userDetails.setDob(user.get().getDob());
+		userDetails.setEmail(user.get().getEmail());
+		userDetails.setFirstName(user.get().getFirstName());
+		userDetails.setLastName(user.get().getLastName());
+		userDetails.setUserName(user.get().getUserName());
+		userDetails.setPassword(user.get().getPassword());
+		userDetails.setPhoneNo(user.get().getPhoneNo());
+		userDetails.setGender(user.get().getGender());
+
+		try {
+			fileStorage.storeUserProfileImage(profileImage);
+			log.info("File uploaded successfully! -> filename = " + profileImage.getOriginalFilename());
+		} catch (Exception e) {
+			log.info("Fail! -> uploaded filename: = " + profileImage.getOriginalFilename());
+		}
+
+		Resource path = fileStorage.loadprofileImage(profileImage.getOriginalFilename());
+		System.out.println("PATH :=" + path.toString());
+		userDetails.setProfileImageName(profileImage.getOriginalFilename());
+		userDetails.setProfileImageUrl(path.toString());
+		UserInfo updatedimage = userService.save(userDetails);
+		response = server.getSuccessResponse("Successfull", updatedimage);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+
+	}
 	  
-	  
- 	@ApiOperation(value = "Find Userby ID", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class, tags={ "admin", })
+ 	@ApiOperation(value = "Find Userby ID", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class)
 	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
 	    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
 	    						 @ApiResponse(code = 404, message = "user not found") })
 	
- 	@RequestMapping(value = "/findUser/{userId}", method = RequestMethod.GET)
+ 	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
 	public ResponseEntity<Map<String, Object>> findUser(@PathVariable("userId") Long userId) throws IOException, ParseException {
 	
 		Optional<UserInfo> fecthed = userService.findById(userId);
@@ -349,11 +361,11 @@ public class UserDetailsController {
  		 
 	 
 	
-	 @ApiOperation(value = "Delete user", nickname = "deleteUser", notes = "This can only be done by the logged in user.", tags={ "user", })
+	 @ApiOperation(value = "Delete user", nickname = "deleteUser", notes = "This can only be done by the logged in user.")
      @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid userId supplied"),
     						   @ApiResponse(code = 404, message = "User not found") })  
 	 
-    @RequestMapping(value = "/delete/{userId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
 	public ResponseEntity<Map<String, Object>> delete(@ApiParam(value = "user needs to be deleted",required=true) @PathVariable("userId") Long userId) throws IOException, ParseException {
 	
 		userService.deleteById(userId);
@@ -363,7 +375,7 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "postVideo", nickname = "postVideo", notes = "Returns a single Video", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "postVideo", nickname = "postVideo", notes = "Returns a single Video", response = UserInfo.class)
 	@ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
 	    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
 	    						 @ApiResponse(code = 404, message = "user not found") })
@@ -416,7 +428,7 @@ public class UserDetailsController {
 
 	}
 	 
-	@ApiOperation(value = "postVideos", nickname = "postVideo", notes = "Returns a Mutliple Videos", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "postVideos", nickname = "postVideo", notes = "Returns a Mutliple Videos", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -492,7 +504,7 @@ public class UserDetailsController {
 
 	}
 	
-	@ApiOperation(value = "updateHashTag", nickname = "updateHashTag", notes = "Upadte hashTag", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "updateHashTag", nickname = "updateHashTag", notes = "Upadte hashTag", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })	
@@ -516,7 +528,7 @@ public class UserDetailsController {
 	/***
 	 * to get the uploaded data by individual user
 	 */
-	@ApiOperation(value = "Find Videos by UserId", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "Find Videos by UserId", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -527,7 +539,9 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
-	@ApiOperation(value = "Find Video by UserId", nickname = "getUserById", notes = "Returns a single video", response = FileInfo.class, tags={ "user", })
+	
+	
+	@ApiOperation(value = "Find Video by UserId", nickname = "getUserById", notes = "Returns a single video", response = FileInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -539,7 +553,8 @@ public class UserDetailsController {
 
 	}
 	
-	@ApiOperation(value = "downloadFile", nickname = "downloadFile", notes = "downloadFile", response = UserInfo.class, tags={ "user", })
+	
+	@ApiOperation(value = "downloadFile", nickname = "downloadFile", notes = "downloadFile", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -553,7 +568,7 @@ public class UserDetailsController {
 	
 	 
  
-	@ApiOperation(value = "like Videos", nickname = "likeVideo", notes = "Likes a video", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "like Videos", nickname = "likeVideo", notes = "Likes a video", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -587,7 +602,7 @@ public class UserDetailsController {
 	}
  
 	@SuppressWarnings("unused")
-	@ApiOperation(value = "Comment on a Videos", nickname = "commentOnVideo", notes = "logged in user can comment on video", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "Comment on a Videos", nickname = "commentOnVideo", notes = "logged in user can comment on video", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -626,7 +641,7 @@ public class UserDetailsController {
 	}
 	
 	
-	 @ApiOperation(value = "Delete comment", nickname = "deleteComment", notes = "This can only be done by the logged in user.", tags={ "user", })
+	 @ApiOperation(value = "Delete comment", nickname = "deleteComment", notes = "This can only be done by the logged in user.")
      @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid Id supplied"),
     						   @ApiResponse(code = 404, message = "comment not found") })  
 	 
@@ -640,7 +655,7 @@ public class UserDetailsController {
 	}
 
   
-	 @ApiOperation(value = "follow a User", nickname = "follow a User", notes = "logged in user can follow another user", response = UserInfo.class, tags={ "user", })
+	 @ApiOperation(value = "follow a User", nickname = "follow a User", notes = "logged in user can follow another user", response = UserInfo.class)
 	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
 	    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
 	    						 @ApiResponse(code = 404, message = "user not found") })
@@ -665,7 +680,7 @@ public class UserDetailsController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 	
-	@ApiOperation(value = "getGroupUserList", nickname = "getGroupUserList", notes = "", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "getGroupUserList", nickname = "getGroupUserList", notes = "", response = UserInfo.class)
 	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
 	    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
 	    						 @ApiResponse(code = 404, message = "user not found") })
@@ -678,7 +693,7 @@ public class UserDetailsController {
 
 	}
 	
-	@ApiOperation(value = "likedList", nickname = "likedList", notes = "", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "likedList", nickname = "likedList", notes = "", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -694,7 +709,7 @@ public class UserDetailsController {
 	}
 	
 
-	@ApiOperation(value = "block", nickname = "block", notes = "", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "block", nickname = "block", notes = "", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })
@@ -725,7 +740,7 @@ public class UserDetailsController {
 
 	}
 
-	@ApiOperation(value = "blockedList", nickname = "blockedList", notes = "", response = UserInfo.class, tags={ "user", })
+	@ApiOperation(value = "blockedList", nickname = "blockedList", notes = "", response = UserInfo.class)
     @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
     						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
     						 @ApiResponse(code = 404, message = "user not found") })

@@ -64,7 +64,7 @@ import io.swagger.annotations.ApiResponses;
 	private final static String default_url = "home/chaitanya/chaitanya-workspace/workspace/java-webapi/profileimages/default.png";
 	private final static String default_image = "default.png";
 
-	@ApiOperation(value = "Create admin", nickname = "createAdmin",response = Admin.class, notes = "This can only be done by the logged in user.", tags={ "admin", })
+	@ApiOperation(value = "Create admin", nickname = "createAdmin",response = Admin.class, notes = "This can only be done by the logged in user.")
                   @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation") })
     
 	@RequestMapping(value = "/", method = RequestMethod.POST)
@@ -114,7 +114,7 @@ import io.swagger.annotations.ApiResponses;
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
-	  @ApiOperation(value = "fetch all admins ", notes = "Number of admins would be listed out !", response = Admin.class, responseContainer = "List" , tags={ "admin", })
+	  @ApiOperation(value = "fetch all admins ", notes = "Number of admins would be listed out !", response = Admin.class, responseContainer = "List" )
 		    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = Admin.class, responseContainer = "List"),
 		    						 @ApiResponse(code = 400, message = "Invalid tag value") })
 	  
@@ -129,7 +129,7 @@ import io.swagger.annotations.ApiResponses;
 		return ResponseEntity.ok().body(map);
 	}
 
-	  @ApiOperation(value = "fetch all users  ", notes = "Number of users would be listed out !", response = UserInfo.class, responseContainer = "List", tags={ "admin", })
+	  @ApiOperation(value = "fetch all users  ", notes = "Number of users would be listed out !", response = UserInfo.class, responseContainer = "List")
 	  		 @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class, responseContainer = "List"),
 		    						  @ApiResponse(code = 400, message = "Invalid tag value") })  
 	  
@@ -145,12 +145,12 @@ import io.swagger.annotations.ApiResponses;
 		return ResponseEntity.ok().body(map);
 	}
 
-	  @ApiOperation(value = "Find Userby ID", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class, tags={ "admin", })
+	  @ApiOperation(value = "Find Userby ID", nickname = "getUserById", notes = "Returns a single User", response = UserInfo.class)
 		    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class),
 		    						 @ApiResponse(code = 400, message = "Invalid ID supplied"),
 		    						 @ApiResponse(code = 404, message = "user not found") })
 	  
-   @RequestMapping(value = "/findUser/{userId}",method = RequestMethod.GET)
+   @RequestMapping(value = "/{userId}",method = RequestMethod.GET)
  	public ResponseEntity<Map<String, Object>> findUser(@PathVariable("userId") Long userId) throws IOException, ParseException {
 		log.info("findUser is calling");
 		ServerResponse<Object> server = new ServerResponse<Object>();
@@ -160,23 +160,23 @@ import io.swagger.annotations.ApiResponses;
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	  @ApiOperation(value = "Delete user", nickname = "deleteUser", notes = "This can only be done by the logged in user.", tags={ "admin", })
+	  @ApiOperation(value = "Delete user", nickname = "deleteUser", notes = "This can only be done by the logged in user.")
 	     @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid username supplied"),
 	    						   @ApiResponse(code = 404, message = "User not found") })  
 	    
- 	@RequestMapping(value = "/deleteuser/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Map<String, Object>> delete(@ApiParam(value = "The user that needs to be deleted",required=true) @PathVariable("userId") Long id)
+ 	@RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
+	public ResponseEntity<Map<String, Object>> delete(@ApiParam(value = "The user that needs to be deleted",required=true) @PathVariable("userId") Long userId)
 			throws IOException, ParseException {
 		log.info("deleteuser is calling");
-		userService.deleteById(id);
+		userService.deleteById(userId);
 		response = server.getSuccessResponse("deleted successfully", null);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	  @ApiOperation(value = "Delete file", nickname = "deleteFile", notes = "This can only be done by the logged in user.", tags={ "admin", })
+	  @ApiOperation(value = "Delete file", nickname = "deleteFile", notes = "This can only be done by the logged in user.")
 	     @ApiResponses(value = {   @ApiResponse(code = 400, message = "Invalid filename supplied"),
 	    						   @ApiResponse(code = 404, message = "File not found") })  
-	@RequestMapping(value = "/deletefile/{fileId}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/{fileId}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Map<String, Object>> deletefile(@ApiParam(value = "The file that needs to be deleted",required=true) @PathVariable("fileId") Long fileId)
 			throws IOException, ParseException {
@@ -187,7 +187,7 @@ import io.swagger.annotations.ApiResponses;
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	  @ApiOperation(value = "blockuser ", notes = "block a user !", response = UserInfo.class, responseContainer = "List" , tags={ "admin", })
+	  @ApiOperation(value = "blockuser ", notes = "block a user !", response = UserInfo.class, responseContainer = "List" )
 	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class, responseContainer = "List"),
 	    						 @ApiResponse(code = 400, message = "Invalid tag value") })
 	  
@@ -223,9 +223,10 @@ import io.swagger.annotations.ApiResponses;
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
-	  @ApiOperation(value = "blockfile ", notes = "block a file !", response = UserInfo.class, responseContainer = "List" , tags={ "admin", })
+	  @ApiOperation(value = "blockfile ", notes = "block a file !", response = UserInfo.class, responseContainer = "List" )
 	    @ApiResponses(value = {  @ApiResponse(code = 200, message = "successful operation", response = UserInfo.class, responseContainer = "List"),
 	    						 @ApiResponse(code = 400, message = "Invalid tag value") })
+	  //, tags={ "admin", }
 	  
 	@RequestMapping(value = "/blockfile", method = RequestMethod.GET)
  	public ResponseEntity<Map<String, Object>> blockFile(@RequestParam Long fileid, @RequestParam Long adminid)
